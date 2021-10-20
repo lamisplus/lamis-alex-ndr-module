@@ -1,0 +1,6 @@
+name: NDR Message Generation Module
+version: 1.0.0
+basePackage: org.lamisplus.modules.ndr
+menuUrl: /across/resources/static/ndr/index.html
+menuName: NDR Message Generation
+description: NDR Message Generation and Upload Module

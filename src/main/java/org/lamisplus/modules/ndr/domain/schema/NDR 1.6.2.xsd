@@ -1,0 +1,4122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- PURPOSE: NDR Schema is the basis for how information is exchanged from 
+	Electronic Medical Records (EMRs) to the National Data Repository (NDR) OVERVIEW: 
+	The NDR Schema is designed to be patient centric and support multiple conditions 
+	for a Patient. Originally developed by InductiveHealth Informatics,
+	Updated and maintained by UMB
+	Point of Contact: Kristen Stafford 
+	(ndrsupport@mgic-nigeria.org) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="unqualified">
+  <xs:element name="Container">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="MessageHeader" type="MessageHeaderType"
+					minOccurs="1" maxOccurs="1" />
+        <xs:choice>
+          <xs:element name="IndividualReport" type="IndividualReportType"
+						minOccurs="1" maxOccurs="1" />
+        </xs:choice>
+        <xs:element name="Validation" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="MessageHeaderType">
+    <xs:sequence>
+      <xs:element name="MessageStatusCode" minOccurs="1"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              The Message Status
+            </xs:documentation>
+          </xs:annotation>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="INITIAL" />
+            <xs:enumeration value="UPDATED" />
+            <xs:enumeration value="REDACTED" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="MessageCreationDateTime" type="xs:dateTime"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Message Creation Date
+            and Time
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MessageSchemaVersion" minOccurs="1"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Version of the NDR
+              schema used to build this message
+            </xs:documentation>
+          </xs:annotation>
+          <xs:restriction base="xs:decimal">
+            <xs:minInclusive value="0" />
+            <xs:maxInclusive value="99999" />
+            <xs:fractionDigits value="2" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="MessageUniqueID" type="StringType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The unique identifier
+            for this message. Used to communicate errors and status with
+            Sending Organization.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MessageSendingOrganization" type="FacilityType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Organization that
+            is sending the message and that is responsible for the facility.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FacilityType">
+    <xs:sequence>
+      <xs:element name="FacilityName" type="StringType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Facility Name
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FacilityID" type="StringType" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Facility ID that is
+            used to uniquely identify the facility.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FacilityTypeCode" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The type of facility.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="IP" />
+            <xs:enumeration value="FAC" />
+            <xs:enumeration value="LGA" />
+            <xs:enumeration value="SGA" />
+            <xs:enumeration value="FGA" />
+            <xs:enumeration value="OTH" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="IndividualReportType">
+    <xs:sequence>
+    	<xs:element name="PatientDemographics"
+    		type="PatientDemographicsType" minOccurs="1" maxOccurs="1" />
+    	<xs:element name="Condition" type="ConditionType" minOccurs="1"
+    		maxOccurs="unbounded" />
+    	<xs:element name="HIVTestingReport" type="HIVTestingReportType"
+    		minOccurs="0" maxOccurs="unbounded" />
+    	<xs:element name="PMTCT" type="PMTCTType" maxOccurs="1" minOccurs="0"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PMTCTType">
+  <xs:sequence>
+  	<xs:element name="Immunization" type="ImmunizationType"
+  		minOccurs="0" maxOccurs="unbounded" />
+
+  	<xs:element name="DeliveryEncounter" type="DeliveryEncounterType"
+  		minOccurs="0" maxOccurs="unbounded" />
+
+  	<xs:element name="AntenatalRegistration"
+  		type="AntenatalRegistrationType" minOccurs="0"
+  		maxOccurs="unbounded" />
+
+  	<xs:element name="ChildBirthDetails" type="ChildBirthDetailsType"
+  		minOccurs="0" maxOccurs="unbounded" />
+
+  	<xs:element name="ChildFollowup" type="ChildFollowupType"
+  		minOccurs="0" maxOccurs="unbounded" />
+
+  	<xs:element name="InfantPCRTesting" type="InfantPCRTestingType"
+  		minOccurs="0" maxOccurs="unbounded" />
+
+  	<xs:element name="HealthFacilityVisits"
+  		type="HealthFacilityVisitsType" minOccurs="0" maxOccurs="unbounded" />
+
+  	<xs:element name="PartnerDetails" type="PartnerDetailsType"
+  		minOccurs="0" maxOccurs="unbounded" />
+
+  	<xs:element name="InfantRapidTest" type="InfantRapidTestType"
+  		minOccurs="0" maxOccurs="unbounded" />
+  	<xs:element name="MaternalCohort" type="MaternalCohortType"
+  		minOccurs="0" maxOccurs="unbounded" />
+  	<xs:element name="PMTCTHTS" type="PMTCTHTSType" maxOccurs="1" minOccurs="0"></xs:element>
+  </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ConditionType">
+    <xs:sequence>
+    	<xs:element name="ConditionCode" type="CodeType" minOccurs="1"
+    		maxOccurs="1" />
+    	<xs:element name="ProgramArea" type="ProgramAreaType"
+    		minOccurs="1" maxOccurs="1" />
+    	<xs:element name="PatientAddress" type="AddressType"
+    		minOccurs="0" maxOccurs="1" />
+    	<xs:element name="CommonQuestions" type="CommonQuestionsType"
+    		minOccurs="0" maxOccurs="1" />
+    	<xs:element name="ConditionSpecificQuestions"
+    		type="ConditionSpecificQuestionsType" minOccurs="0" maxOccurs="1" />
+    	<xs:element name="Encounters" type="EncountersType"
+    		minOccurs="0" maxOccurs="1" />
+    	<xs:element name="LaboratoryReport" type="LaboratoryReportType"
+    		minOccurs="0" maxOccurs="unbounded" />
+    	<xs:element name="Regimen" type="RegimenType" minOccurs="0"
+    		maxOccurs="unbounded" />
+    
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ConditionSpecificQuestionsType">
+    <xs:choice>
+      <xs:element name="HIVQuestions" type="HIVQuestionsType"
+				minOccurs="0" maxOccurs="1" />
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="HIVQuestionsType">
+    <xs:sequence>
+    	<xs:element name="CareEntryPoint" minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Code that represents the Care Entry Point for
+    				patient into HIV care
+    			</xs:documentation>
+    		</xs:annotation>
+    		<xs:simpleType>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="1" />
+    				<xs:enumeration value="2" />
+    				<xs:enumeration value="3" />
+    				<xs:enumeration value="4" />
+    				<xs:enumeration value="5" />
+    				<xs:enumeration value="6" />
+    				<xs:enumeration value="7" />
+    				<xs:enumeration value="8" />
+    				<xs:enumeration value="9" />
+    				<xs:enumeration value="10" />
+    				<xs:enumeration value="11" />
+    				<xs:enumeration value="12" />
+    				<xs:enumeration value="13" />
+    				<xs:enumeration value="14" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="FirstConfirmedHIVTestDate" type="xs:date"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Date of First Confirmed HIV test
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="FirstHIVTestMode" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Code that represents the type of first confirmed HIV
+    				test as [HIV-Ab] or [PCR]
+    			</xs:documentation>
+    		</xs:annotation>
+    		<xs:simpleType>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="HIVAb" />
+    				<xs:enumeration value="HIVPCR" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="WhereFirstHIVTest" type="StringType"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Description of where the first HIV test occurred
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="PriorArt" type="CodeType" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Type of prior ART
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="MedicallyEligibleDate" type="xs:date"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Date of Patient became medically eligible for ART
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="ReasonMedicallyEligible" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Why Eligible for ART
+    			</xs:documentation>
+    		</xs:annotation>
+    		<xs:simpleType>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="1" />
+    				<xs:enumeration value="2" />
+    				<xs:enumeration value="3" />
+    				<xs:enumeration value="4" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="InitialAdherenceCounselingCompletedDate"
+    		type="xs:date" minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Date Initial Adherence Counseling Completed
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="PatientTransferredIn" type="xs:boolean"
+    		minOccurs="0" maxOccurs="1">
+    	</xs:element>
+    	<xs:element name="TransferredInDate" type="xs:date"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Date initially transferred in to ARV care
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="TransferredInFrom" type="FacilityType"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Facility where patient transferred from
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="TransferredInFromPatId" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:simpleType>
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					The Patient's Identifier from the previous
+    					facility
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:restriction base="xs:string">
+    				<xs:minLength value="0" />
+    				<xs:maxLength value="2000" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="FirstARTRegimen" type="CodedSimpleType"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Code and description that represents the first ART
+    				regimen the patient was on
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="ARTStartDate" type="xs:date" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Date ART Started
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="WHOClinicalStageARTStart" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Code that represents the WHO Clinical Stage of the
+    				patient when ART started
+    			</xs:documentation>
+    		</xs:annotation>
+    		<xs:simpleType>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="1" />
+    				<xs:enumeration value="2" />
+    				<xs:enumeration value="3" />
+    				<xs:enumeration value="4" />
+    				<xs:enumeration value="I" />
+    				<xs:enumeration value="II" />
+    				<xs:enumeration value="III" />
+    				<xs:enumeration value="IV" />
+
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="WeightAtARTStart" type="xs:int" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				The Patient's Weight in (kg) at ART start
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="ChildHeightAtARTStart" type="xs:int"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				The Patient's Height in (cm) if child at ART start
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="FunctionalStatusStartART" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Code that represents the Functional Status of the
+    				patient when ART started
+    			</xs:documentation>
+    		</xs:annotation>
+    		<xs:simpleType>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="W" />
+    				<xs:enumeration value="A" />
+    				<xs:enumeration value="B" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="CD4AtStartOfART" type="StringType"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				CD4 absolute of the patient at the start of ART
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="PatientTransferredOut" type="xs:boolean"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				True or false, did the Patient transfer out
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="TransferredOutStatus" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Code that represents ART status when patient
+    				transferred out
+    			</xs:documentation>
+    		</xs:annotation>
+    		<xs:simpleType>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="A" />
+    				<xs:enumeration value="P" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="TransferredOutDate" type="xs:date"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Date patient transferred out from this facility
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="FacilityReferredTo" type="FacilityType"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Facility where patient was referred to
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="PatientHasDied" type="xs:boolean"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Did the Patient Die
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="StatusAtDeath" minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Code that represents ART status when patient
+    				transferred out
+    			</xs:documentation>
+    		</xs:annotation>
+    		<xs:simpleType>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="A" />
+    				<xs:enumeration value="P" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="DeathDate" type="xs:date" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Date patient died
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="SourceOfDeathInformation" type="StringType"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Source of death information
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="CauseOfDeathHIVRelated" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Was cause of death HIV related
+    			</xs:documentation>
+    		</xs:annotation>
+    		<xs:simpleType>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="Y" />
+    				<xs:enumeration value="N" />
+    				<xs:enumeration value="U" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="DrugAllergies" type="StringType" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Patient's drug allergies
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="EnrolledInHIVCareDate" type="xs:date"
+    		minOccurs="1" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Date initially enrolled in HIV care
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="InitialTBStatus" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Code that represents the Initial TB Status of the
+    				patient
+    			</xs:documentation>
+    		</xs:annotation>
+    		<xs:simpleType>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="1" />
+    				<xs:enumeration value="2" />
+    				<xs:enumeration value="3" />
+    				<xs:enumeration value="4" />
+    				<xs:enumeration value="5" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="StoppedTreatment" type="xs:boolean" minOccurs="0" maxOccurs="1"></xs:element>
+    	<xs:element name="DateStoppedTreatment" type="xs:date" minOccurs="0" maxOccurs="1"></xs:element>
+    	<xs:element name="ReasonForStoppedTreatment" minOccurs="0" maxOccurs="1">
+    	    		<xs:simpleType>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="1" />
+    				<xs:enumeration value="2" />
+    				<xs:enumeration value="3" />
+    				<xs:enumeration value="4" />
+    				<xs:enumeration value="5" />
+    				<xs:enumeration value="6" />
+    				<xs:enumeration value="7" />
+    				<xs:enumeration value="8" />
+    				<xs:enumeration value="9" />
+    				<xs:enumeration value="10" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ProgramAreaType">
+    <xs:sequence>
+      <xs:element name="ProgramAreaCode" type="CodeType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Program Area Code
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PatientDemographicsType">
+    <xs:sequence>
+    	<xs:element name="PatientIdentifier" minOccurs="1"
+    		maxOccurs="1">
+    		<xs:simpleType>
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					The Patient Identifier
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:restriction base="xs:string">
+    				<xs:minLength value="0" />
+    				<xs:maxLength value="2000" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="IdentifierChange" type="IdentifierChangeType" minOccurs="0" maxOccurs="1">
+    	
+    	</xs:element>
+    	<xs:element name="TreatmentFacility" type="FacilityType"
+    		minOccurs="1" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				The facility where the patient is being treated
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="OtherPatientIdentifiers"
+    		type="IdentifiersType" minOccurs="0">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Other Patient Identifiers
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="PatientDateOfBirth" type="RestrictedDateType"
+    		minOccurs="1" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				The Patient's DOB
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="PatientSexCode" minOccurs="1" maxOccurs="1">
+    		<xs:simpleType>
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					The Patient's Sex Code
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="F" />
+    				<xs:enumeration value="M" />
+    				<xs:enumeration value="A" />
+    				<xs:enumeration value="N" />
+    				<xs:enumeration value="O" />
+    				<xs:enumeration value="U" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="PatientDeceasedIndicator" type="xs:boolean"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				The Patient's Deceased Indicator
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="PatientDeceasedDate" type="xs:date"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				The Patient's Deceased Date
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="PatientPrimaryLanguageCode" type="CodeType"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				The Patient's Primary Language Code
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="PatientEducationLevelCode" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:simpleType>
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					The Patient's Educational Level
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="1" />
+    				<xs:enumeration value="2" />
+    				<xs:enumeration value="3" />
+    				<xs:enumeration value="4" />
+    				<xs:enumeration value="5" />
+    				<xs:enumeration value="6" />
+    				<xs:enumeration value="7" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="PatientOccupationCode" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:simpleType>
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					The Patient's Occupation Level
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="UNE" />
+    				<xs:enumeration value="EMP" />
+    				<xs:enumeration value="RET" />
+    				<xs:enumeration value="STU" />
+    				<xs:enumeration value="NA" />
+    				<xs:enumeration value="UNK" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="PatientMaritalStatusCode" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:simpleType>
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					The Patient's Marital Status Level
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:restriction base="CodeType">
+    				<xs:enumeration value="N" />
+    				<xs:enumeration value="C" />
+    				<xs:enumeration value="D" />
+    				<xs:enumeration value="P" />
+    				<xs:enumeration value="I" />
+    				<xs:enumeration value="E" />
+    				<xs:enumeration value="G" />
+    				<xs:enumeration value="M" />
+    				<xs:enumeration value="O" />
+    				<xs:enumeration value="R" />
+    				<xs:enumeration value="A" />
+    				<xs:enumeration value="S" />
+    				<xs:enumeration value="U" />
+    				<xs:enumeration value="B" />
+    				<xs:enumeration value="T" />
+    				<xs:enumeration value="W" />
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:element>
+    	<xs:element name="StateOfNigeriaOriginCode" type="CodeType"
+    		minOccurs="0" maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				The Patient's State of Origin Code (assuming
+    				Nigeria)
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	<xs:element name="PatientNotes" type="NoteType" minOccurs="0" />
+    	<xs:element name="FingerPrints" type="FingerPrintType"
+    		minOccurs="0" maxOccurs="1">
+    	</xs:element>
+
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="TelephoneType">
+    <xs:sequence>
+      <xs:element name="Number" type="StringType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Telephone number
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Extension" type="StringType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Telephone number
+            extension
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EmailAddress" type="StringType"
+				minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Email Address
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TelephoneTypeCode" type="CodeType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Telephone Type Code
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="NameType">
+    <xs:sequence>
+      <xs:element name="NameTypeCode" type="CodeType" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Name Type Code
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="First" type="StringType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The First Name
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Middle" type="StringType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Middle Name
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Last" type="StringType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Last Name
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="IdentifiersType">
+    <xs:sequence>
+      <xs:element name="Identifier" type="IdentifierType"
+				maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="IdentifierType">
+    <xs:sequence>
+      <xs:element name="IDNumber" type="StringType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The ID Number
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="IDTypeCode" type="CodeType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The ID Type Code
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AddressType">
+    <xs:sequence>
+      <xs:element name="AddressTypeCode" type="CodeType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Address Type Code
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WardVillage" type="StringType"
+				minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Ward or Village
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Town" type="StringType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Town
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LGACode" type="CodeType" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The code representing
+            the LGA
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StateCode" type="CodeType" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The code representing
+            the state
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CountryCode" type="CodeType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The code representing
+            the country
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PostalCode" type="StringType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Postal Code
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OtherAddressInformation" type="StringType"
+				minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Other Address
+            Information
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="NoteType">
+    <xs:sequence>
+      <xs:element name="Note" maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="2000" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CommonQuestionsType">
+    <xs:sequence>
+      <xs:element name="HospitalNumber" type="StringType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Hospital Number
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DiagnosisFacility" type="FacilityType"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="DateOfFirstReport" type="xs:date"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="DateOfLastReport" type="xs:date"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="DiagnosisDate" type="xs:date" minOccurs="1"
+				maxOccurs="1" />
+      <xs:element name="PatientDieFromThisIllness" type="xs:boolean"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="PatientPregnancyStatusCode" minOccurs="0"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="P" />
+            <xs:enumeration value="PMTCT" />
+            <xs:enumeration value="NP" />
+            <xs:enumeration value="NK" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="EstimatedDeliveryDate" type="xs:date"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="PatientAge" type="xs:int" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Patient's Age
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RegimenType">
+    <xs:sequence>
+      <xs:element name="VisitID" type="StringType" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Visit ID Number
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VisitDate" type="xs:date" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of Visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="PrescribedRegimen" type="CodedSimpleType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Resulted Test
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescribedRegimenTypeCode" type="CodeType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Prescribed Regimen Type
+            Code
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescribedRegimenLineCode" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Prescribed Regimen Line
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescribedRegimenDuration" type="CodeType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Prescribed Regimen
+            Duration
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescribedRegimenDispensedDate" type="xs:date"
+				minOccurs="1" maxOccurs="1" />
+      <xs:element name="DateRegimenStarted" type="xs:date"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="DateRegimenStartedDD" minOccurs="0"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="2" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="DateRegimenStartedMM" minOccurs="0"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="2" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="DateRegimenStartedYYYY" minOccurs="0"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="4" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="DateRegimenEnded" type="xs:date"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="DateRegimenEndedDD" minOccurs="0"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="2" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="DateRegimenEndedMM" minOccurs="0"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="2" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="DateRegimenEndedYYYY" minOccurs="0"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="4" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LaboratoryReportType">
+    <xs:sequence>
+      <xs:element name="VisitID" type="StringType" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The unique Visit
+            Identifier that this Order / Resulted Test(s)
+            combination is linked
+            to
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VisitDate" type="xs:date" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of Visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LaboratoryTestIdentifier" type="StringType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The unique identifier
+            that represents the Order / Resulted Test(s)
+            combination
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BaselineRepeatCode" minOccurs="0"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Indicates whether the
+              Laboratory Order represents a baseline or repeat
+            </xs:documentation>
+          </xs:annotation>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="B" />
+            <xs:enumeration value="R" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ARTStatusCode" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Patient's ART Status at
+            time of Laboratory Test
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+                  <xs:element name="CollectionDate" type="xs:date"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date Specimen was
+            collected
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LaboratoryOrderAndResult" type="LaboratoryOrderAndResult"
+				minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="Clinician" type="StringType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Captures the clinician
+            who ordered the Laboratory Test
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReportedBy" type="StringType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Captures Reported By
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CheckedBy" type="StringType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Captures Checked By
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LaboratoryOrderAndResult">
+    <xs:sequence>
+      <xs:element name="LaboratoryTestTypeCode" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Type of Laboratory Test
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderedTestDate" type="xs:date"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date Order was made
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LaboratoryOrderedTest" type="CodedSimpleType"
+				minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Ordered Test
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LaboratoryResultedTest" type="CodedSimpleType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Resulted Test
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LaboratoryResult" type="AnswerType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Captures the type of
+            result (Numeric (including Units), Coded, Text, Date)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ResultedTestDate" type="xs:date"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date Results are made
+            available
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OtherLaboratoryInformation" type="StringType"
+				minOccurs="0">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Captures additional
+            (free form) laboratory information
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ContactType">
+    <xs:sequence>
+      <xs:element name="ContactRelationshipType" type="CodeType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Relationship Type
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactName" type="NameType" minOccurs="1"
+				maxOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ChildBirthDetailsType">
+
+    <xs:sequence>
+      <xs:element name="ChildHospitalNumber" type="StringType" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Child Hospital Registration Number
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ChildEIDNumber" type="StringType" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            HIV Exposed Infant Number
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ChildDateOfBirth" type="xs:date" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of Birth
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ChildSexCode" minOccurs="1"
+       maxOccurs="1"> 
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Child Sex
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="F" />
+            <xs:enumeration value="M" />
+            <xs:enumeration value="A" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="O" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ChildGivenNVPWithin72hrs"  minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Child given ART within 72 Hours
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ChildStatus" minOccurs="1"
+       maxOccurs="1">  
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Child Status
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Alive" />
+            <xs:enumeration value="SB" />
+            <xs:enumeration value="NND" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="APGARScore" type="xs:float" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            APGAR score
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BirthMUAC" type="xs:float" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Mean Upper Arm Circumference
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BirthLenght" type="xs:float" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Birth lenght
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BirthWeight" type="xs:float" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Birth weight
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HeadCircumferenceAtBirth" type="xs:float" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Head circumference
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ImmunizationReceived" type="StringType" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Immunization received at birth
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HBVExposedInfantGivenHepBIg" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            HBV Exposed Infant given Hep B lg within 24 hours of birth
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="NonHBVExposedInfantGivenHBV" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Non-HBV Exposed Infant given HBV vaccine within 24hours of birth
+          </xs:documentation>
+        </xs:annotation>
+          <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChildFollowupType">
+    <xs:sequence>
+      <xs:element name="InfantARVType" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Infant ARV Type
+          </xs:documentation>
+        </xs:annotation>
+          <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="TimingOfARVProphylaxis" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Timing of ARV Prophylaxis
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="AgeAtCTXInitiation" type="xs:int" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Age at CTX Initiation
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InfantOutcomeAt18Months" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Infant Outcome at 18 Months
+          </xs:documentation>
+        </xs:annotation>
+                <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+            <xs:enumeration value="5" />
+            <xs:enumeration value="6" />
+            <xs:enumeration value="7" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="DateLinkedToARTClinic" type="xs:date" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date Linked to ART clinic
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ARTEnrollmentNumber" type="StringType" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            ART Enrollment No.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InfantPCRTestingType">
+
+    <xs:sequence>
+      <xs:element name="AgeAtTest" type="xs:int" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Age at Test
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DateSampleCollected" type="xs:date" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date Sample Collected
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DateSampleSent" type="xs:date" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date Sample Sent
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DateResultReceivedAtFacility" type="xs:date" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date Result Received at Facility
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DateCaregiverGivenResult" type="xs:date" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date Caregiver Given Result
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PCRTestResult" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Test Result
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Pos" />
+            <xs:enumeration value="Neg" />
+            <xs:enumeration value="NP" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InfantRapidTestType">
+    <xs:sequence>
+      <xs:element name="AgeAtTest"  type="xs:int" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Age at Test
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DateOfTest"  type="xs:date" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of Test
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RapidTestResult" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Test Result
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Pos" />
+            <xs:enumeration value="Neg" />
+            <xs:enumeration value="Indet" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="HealthFacilityVisitsType">
+    <xs:sequence>
+      <xs:element name="VisitDate"  type="xs:date" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Visit Date
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VisitStatus"  minOccurs="0"
+       maxOccurs="1">   
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Visit Status
+          </xs:documentation>
+        </xs:annotation>
+           <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="A" />
+            <xs:enumeration value="TI" />
+            <xs:enumeration value="TO" />
+             <xs:enumeration value="L" />
+              <xs:enumeration value="DC" />
+               <xs:enumeration value="X" />
+                <xs:enumeration value="LTFU" />
+                 <xs:enumeration value="D" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="Cotrimoxazole" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Cotrimoxazole
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="Weight"  type="xs:int" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Weight (kg)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BreastFeeding" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Breast Feeding
+          </xs:documentation>
+        </xs:annotation>
+          <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+            <xs:element name="PrescribedRegimen" type="CodedSimpleType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Resulted Test
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescribedRegimenLineCode"
+				minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Regimen Line
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="10" />
+            <xs:enumeration value="11" />
+            <xs:enumeration value="20" />
+            <xs:enumeration value="21" />
+             <xs:enumeration value="30" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+            <xs:element name="MaternalOutcome"
+				minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Maternal Outcome
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Alive" />
+            <xs:enumeration value="Dead" />
+            <xs:enumeration value="A" />
+            <xs:enumeration value="TO" />
+            <xs:enumeration value="TP" />
+            <xs:enumeration value="TA" />
+            <xs:enumeration value="LTFU" />            
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PartnerDetailsType">
+    <xs:sequence>
+      <xs:element name="PartnerAge"  type="xs:int" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Partner Age
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PartnerPreTestCounseled"  minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Partner pre-test counselled
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="PartnerPostTestCounseled"  minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Partner post-test counseled
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="PartnerAcceptsHIVTest"  minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Partner accepts HIV test
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="PartnerHIVTestResult" minOccurs="0"
+     maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en"> Description </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Pos" />
+            <xs:enumeration value="Neg" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="PartnerHBVStatus"  minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Partner HBV status
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Pos" />
+            <xs:enumeration value="Neg" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="PartnerHCVStatus"  minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Partner HCV status
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Pos" />
+            <xs:enumeration value="Neg" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="PartnerSyphilisStatus"   minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Partner syphilis status
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="R" />
+            <xs:enumeration value="NR" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="PartnerReferredTo"  minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Partner referred to
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="FP" />
+            <xs:enumeration value="ART" />
+            <xs:enumeration value="Other" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="KnowledgeAssessmentType">
+    <xs:sequence>
+      <xs:element name="PreviouslyTestedHIVNegative"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Previously tested HIV negative
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientInformedAboutHIVTransmissionRoutes"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Client informed about HIV transmission routes
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientPregnant"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Client pregnant (Test and ensure linkage to PMTCT program)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientInformedOfHIVTransmissionRiskFactors"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Client informed about risk factors for HIV transmission
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientInformedAboutPreventingHIV"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Client informed on preventing HIV transmission methods
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientInformedAboutPossibleTestResults"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Client informed about possible test results
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InformedConsentForHIVTestingGiven"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Informed consent for HIV testing given
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HIVRiskAssessmentType">
+    <xs:sequence>
+      <xs:element name="EverHadSexualIntercourse"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Ever had sexual intercourse
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BloodTransfussionInLast3Months"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Blood transfusion in last 3 months
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UnprotectedSexWithCasualPartnerinLast3Months"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Unprotected sex with casual partner in last 3 months
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UnprotectedSexWithRegularPartnerInLast3Months"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Unprotected sex with regular partner in the last 3months
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MoreThan1SexPartnerDuringLast3Months"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            More than 1 sex partner during last 3 months
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="STIInLast3Months" type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            STI in last 3 months
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ClinicalTBScreeningType">
+    <xs:sequence>
+      <xs:element name="CurrentlyCough"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Current cough
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WeightLoss" type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Weight loss
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Fever"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Fever
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="NightSweats"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Night sweats
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SyndromicSTIScreeningType">
+    <xs:sequence>
+      <xs:element name="VaginalDischargeOrBurningWhenUrinating"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en"> Description </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LowerAbdominalPainsWithOrWithoutVaginalDischarge"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en"> Description </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UrethralDischargeOrBurningWhenUrinating"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en"> Description </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ScrotalSwellingAndPain"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en"> Description </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GenitalSoreOrSwollenInguinalLymphNodes"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en"> Description </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PostTestCounsellingType">
+    <xs:sequence>
+      <xs:element name="TestedForHIVBeforeWithinThisYear"   minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Have you been tested for HIV before within this year
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="HIVRequestAndResultFormSignedByTester"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            HIV Request and Result form signed by tester(s)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HIVRequestAndResultFormFilledWithCTIForm"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            HIV Request and Result form filled with CT Intake Form
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientRecievedHIVTestResult"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Client received HIV test result
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PostTestCounsellingDone"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Post test counseling done
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RiskReductionPlanDeveloped"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Risk reduction plan developed
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PostTestDisclosurePlanDeveloped"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Post test disclosure plan developed
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WillBringPartnerForHIVTesting"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Will bring partner(s) for HIV testing
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WillBringOwnChildrenForHIVTesting"  type="xs:boolean" minOccurs="1"
+      maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Will bring own children less than 5 years for HIV testing
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="ProvidedWithInformationOnFPandDualContraception"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Provided with information on FP and dual contraception
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientOrPartnerUseFPMethodsOtherThanCondoms"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Client/Partner use FP methods (other than condom)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientOrPartnerUseCondomsAsOneFPMethods"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Client/Partner use condoms as (one) FP method
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CorrectCondomUseDemonstrated"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Correct condom use demonstrated
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CondomsProvidedToClient"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Condoms provided to client
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ClientReferredToOtherServices"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Client referred to other services
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="ImmunizationType">
+    <xs:sequence>
+      <xs:element name="VisitID" type="StringType" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The unique Visit
+            Identifier that this Immunization is linked to
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VisitDate" type="xs:date" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of Visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ImmunizationIdentifier" type="StringType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The unique identifier
+            that represents the immunization
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ImmunizationDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Vaccination
+            administration date
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LotNumber" type="StringType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Vaccine lot number
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExpirationDate" type="xs:date"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Vaccine expiration date
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ManufacturerCode" type="StringType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Vaccine manufacturer
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ImmunizationType" type="CodedSimpleType"
+				minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The type of vaccine
+            administered
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SiteCode" type="CodeType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Body site vaccine was
+            administered
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RouteCode" type="CodeType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            How vaccine entered
+            body
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Dose" type="StringType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Amount of vaccine
+            administered
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SelfReported" type="xs:boolean"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="Clinician" type="StringType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Captures the clinician
+            who ordered the Immunization
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PerformedBy" type="StringType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Captures Reported By
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CheckedBy" type="StringType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Captures Checked By
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="EncountersType">
+    <xs:sequence>
+      <xs:element name="HIVEncounter" type="HIVEncounterType"
+				minOccurs="0" maxOccurs="unbounded" />
+
+    </xs:sequence>
+
+  </xs:complexType>
+  <xs:complexType name="HIVEncounterType">
+    <xs:sequence>
+      <xs:element name="VisitID" type="StringType" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The unique Visit
+            Identifier
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VisitDate" type="xs:date" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of Visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DurationOnArt" type="xs:int" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Duration (in Months)on
+            ART this visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Weight" type="xs:int" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Patient's Weight in
+            (kg) this visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ChildHeight" type="xs:int" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Patient's Height in
+            (cm) if child this visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BloodPressure" type="StringType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Blood Pressure (mmHg)
+            Adults Only this visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EDDandPMTCTLink" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the EDD and PMTCT Link of the patient this visit
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="P" />
+            <xs:enumeration value="PMTCT" />
+            <xs:enumeration value="NP" />
+            <xs:enumeration value="NK" />
+            <xs:enumeration value="BF" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="PatientFamilyPlanningCode" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the use of Family Planning by patient this visit
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="FP" />
+            <xs:enumeration value="NOFP" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="PatientFamilyPlanningMethodCode" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Family Planning Method used by patient this
+            visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FunctionalStatus" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Functional Status of the patient this visit
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="W" />
+            <xs:enumeration value="A" />
+            <xs:enumeration value="B" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="WHOClinicalStage" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the WHO Clinical Stage of the patient this visit
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <!--This list represents the four WHO clinical stages -->
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="TBStatus" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the TB Status of the patient this visit
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+            <xs:enumeration value="5" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="OtherOIOtherProblems" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Other OIs/ Other
+            Problems
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="NotedSideEffects" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Noted Side Effects
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ARVDrugRegimen" type="CodedSimpleType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the ARV Regimen of the patient this visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ARVDrugAdherence" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Adherence to ARV Regimen of the patient this
+            visit
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="G" />
+            <xs:enumeration value="F" />
+            <xs:enumeration value="P" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="WhyPoorFairARVDrugAdherence" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            why poor/fair ARV Regimen adherance
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+            <xs:enumeration value="5" />
+            <xs:enumeration value="6" />
+            <xs:enumeration value="7" />
+            <xs:enumeration value="8" />
+            <xs:enumeration value="9" />
+            <xs:enumeration value="10" />
+            <xs:enumeration value="11" />
+            <xs:enumeration value="12" />
+            <xs:enumeration value="13" />
+            <xs:enumeration value="14" />
+            <xs:enumeration value="15" />
+            <xs:enumeration value="16" />
+            <xs:enumeration value="17" />
+            <xs:enumeration value="18" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="CotrimoxazoleDose" type="CodedSimpleType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Cotrimoxazole Dose of the patient this visit
+            inclusive of the
+            Drug itself
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CotrimoxazoleAdherence" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Adherence to Cotrimoxazole of the patient
+            this visit
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="G" />
+            <xs:enumeration value="F" />
+            <xs:enumeration value="P" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="WhyPoorFairCotrimoxazoleDrugAdherence"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            why poor/fair Cotrimoxazole Regimen adherance
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+            <xs:enumeration value="5" />
+            <xs:enumeration value="6" />
+            <xs:enumeration value="7" />
+            <xs:enumeration value="8" />
+            <xs:enumeration value="9" />
+            <xs:enumeration value="10" />
+            <xs:enumeration value="11" />
+            <xs:enumeration value="12" />
+            <xs:enumeration value="13" />
+            <xs:enumeration value="14" />
+            <xs:enumeration value="15" />
+            <xs:enumeration value="16" />
+            <xs:enumeration value="17" />
+            <xs:enumeration value="18" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="INHDose" type="CodedSimpleType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the INH Dose of the patient this visit inclusive
+            of the Drug itself
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="INHAdherence" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Adherence to INH of the patient this visit
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="G" />
+            <xs:enumeration value="F" />
+            <xs:enumeration value="P" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="WhyPoorFairINHDrugAdherence" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            why poor/fair INH Regimen adherance
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+            <xs:enumeration value="5" />
+            <xs:enumeration value="6" />
+            <xs:enumeration value="7" />
+            <xs:enumeration value="8" />
+            <xs:enumeration value="9" />
+            <xs:enumeration value="10" />
+            <xs:enumeration value="11" />
+            <xs:enumeration value="12" />
+            <xs:enumeration value="13" />
+            <xs:enumeration value="14" />
+            <xs:enumeration value="15" />
+            <xs:enumeration value="16" />
+            <xs:enumeration value="17" />
+            <xs:enumeration value="18" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="CD4" type="xs:int" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            CD4 absolute value test
+            result of the patient this visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CD4TestDate" type="xs:date" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of CD4 test result
+            of the patient this visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+            <xs:element name="ReasonForRegimenSwitchSubs" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Reasons for regimen
+            substitutions/switiches
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+	  
+	        <xs:element name="PrescribedRegimenInitialIndicator" type="xs:boolean"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="PrescribedRegimenCurrentIndicator" type="xs:boolean"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="TypeOfPreviousExposureCode" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Type of Previous ARV
+            Exposure
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PoorAdherenceIndicator" type="xs:boolean"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="ReasonForPoorAdherence" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Reason for Poor
+            Adherence
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReasonRegimenEndedCode" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Reason Regimen Ended
+            Code
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SubstitutionIndicator" type="xs:boolean"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="SwitchIndicator" type="xs:boolean"
+				minOccurs="0" maxOccurs="1" />
+      <xs:element name="NextAppointmentDate" type="xs:date"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of next
+            appointment scheduled for the patient this visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="AntenatalRegistrationType">
+    <xs:sequence>
+      <xs:element name="VisitID" type="StringType" minOccurs="1"  maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The unique Visit
+            Identifier
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+            <xs:element name="VisitDate" type="xs:date" minOccurs="1"
+				maxOccurs="1">  
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of Antenatal registration
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LastMenstralPeriod" type="xs:date" minOccurs="0"
+      maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of last menstral period before current pregnancy
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GestationalAgeAtANCRegistration" type="xs:int" minOccurs="0"
+      maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Age in weeks of current pregnancy
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Gravida" type="xs:int" minOccurs="0"
+      maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Decription
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Parity" type="xs:int" minOccurs="0"
+      maxOccurs="1" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Decription
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SourceOfReferral" type="StringType" minOccurs="0"
+      maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Decription
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExpectedDateOfDelivery" type="xs:date" minOccurs="0"
+      maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Expected Date of Delivery
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Syphilis">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="TestedForSyphilis" minOccurs="0"
+      maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation xml:lang="en">
+                  If the woman was tested for syphilis
+
+                </xs:documentation>
+              </xs:annotation>
+                <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+            </xs:element>
+            <xs:element name="SyphilisTestResult"  minOccurs="0"
+      maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation xml:lang="en">
+                  Woman's syphilis test result
+
+                </xs:documentation>
+              </xs:annotation>
+               <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Pos" />
+            <xs:enumeration value="Neg" />
+          </xs:restriction>
+        </xs:simpleType>
+            </xs:element>
+            <xs:element name="TreatedForSyphilis"  minOccurs="0"
+      maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation xml:lang="en">
+                  If the woman was treated for syphilis
+
+                </xs:documentation>
+              </xs:annotation>
+               <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+            </xs:element>
+            <xs:element name="SyphilisResult" type="StringType" minOccurs="0"
+      maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation xml:lang="en">
+                  Reffered Syphilis Positive Client
+
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="ReferredSyphilisPositiveClient"  minOccurs="0"
+       maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation xml:lang="en"> Description </xs:documentation>
+              </xs:annotation>
+               <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DeliveryEncounterType">
+    <xs:sequence>
+      <xs:element name="VisitID" type="StringType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The unique Visit
+            Identifier
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VisitDate" type="xs:date" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date the woman delivered of her baby
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TimeOfHIVDiagnosis" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Period when woman was diagnosized HIV positive
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="GestationalAgeAtDelivery" type="xs:int" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Age in weeks the pregnancy was at delivery
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HBVStatus" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Hepatitis B Virus Status
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Pos" />
+            <xs:enumeration value="Neg" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="HCVStatus"  minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Hepatitis C Virus Status
+          </xs:documentation>
+        </xs:annotation>
+          <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Pos" />
+            <xs:enumeration value="Neg" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="WomanOnART" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Is woman on ART
+          </xs:documentation>
+        </xs:annotation>
+          <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ARTStartedInLDWard" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Whether ART was started in labour and delivery ward
+          </xs:documentation>
+        </xs:annotation>
+           <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ROMDeliveryInterval" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            ROM Delivery Interval
+          </xs:documentation>
+        </xs:annotation>
+           <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ModeOfDelivery" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Mode of Delivery
+          </xs:documentation>
+        </xs:annotation>
+          <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+          </xs:restriction>
+          </xs:simpleType>
+      </xs:element>
+      <xs:element name="Episiotomy" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Episiotomy
+          </xs:documentation>
+        </xs:annotation>
+          <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="VaginalTear" minOccurs="0"
+      maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Vaginal Tear
+
+          </xs:documentation>
+        </xs:annotation>
+          <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="U" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="FeedingDecision" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Feeding Decision
+          </xs:documentation>
+        </xs:annotation>
+          <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="EBF" />
+            <xs:enumeration value="ERF" />
+            <xs:enumeration value="Mixed" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="MaternalOutcome" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Maternal Outcome
+          </xs:documentation>
+        </xs:annotation>
+          <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Alive" />
+            <xs:enumeration value="Dead" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="MedicationType">
+    <xs:sequence>
+      <xs:choice>
+        <xs:element name="Drug" type="CodedSimpleType" minOccurs="1"
+					maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Code that represents
+              the Drug
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="DrugOther" type="StringType" minOccurs="0"
+					maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Free text that
+              represents the other Drug specified
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="FrequencyCode" type="CodeType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Code that represents
+            the Frequency of the Drug
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Duration" type="StringType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The length of time the
+            drug should be taken
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="QuantityPrescribed" minOccurs="0"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              The of drugs
+              prescribed
+            </xs:documentation>
+          </xs:annotation>
+          <xs:restriction base="xs:int">
+            <xs:minInclusive value="0" />
+            <xs:maxInclusive value="50" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="QuantityDispensed" minOccurs="0"
+				maxOccurs="1">
+        <xs:simpleType>
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              The number of drugs
+              dispensed
+            </xs:documentation>
+          </xs:annotation>
+          <xs:restriction base="xs:int">
+            <xs:minInclusive value="0" />
+            <xs:maxInclusive value="50" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="SingleDose" type="StringType" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            For Pediatric, the
+            single dose
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TotalDailyDose" type="StringType"
+				minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            For Pediatric, the
+            total daily dose
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AnswerType">
+    <xs:sequence>
+      <xs:choice>
+        <xs:element name="AnswerCode" type="CodedType" />
+        <xs:element name="AnswerDate" type="xs:date" />
+        <xs:element name="AnswerDateTime" type="xs:dateTime" />
+        <xs:element name="AnswerNumeric" type="NumericType" />
+        <xs:element name="AnswerText">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0" />
+              <xs:maxLength value="2000" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CodedType">
+    <xs:sequence>
+      <xs:element name="Code" type="CodeType" />
+      <xs:element name="CodeDescTxt" type="CodeDescTxtType" />
+      <xs:element name="CodeSystemCode" type="CodeSystemCodeType" />
+      <xs:element name="Text" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="255" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CodedSimpleType">
+    <xs:sequence>
+      <xs:element name="Code" type="CodeType" minOccurs="1" />
+      <xs:element name="CodeDescTxt" type="CodeDescTxtType"
+				minOccurs="0" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="CodeType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="0" />
+      <xs:maxLength value="50" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="CodeSystemCodeType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="0" />
+      <xs:maxLength value="255" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="CodeDescTxtType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="0" />
+      <xs:maxLength value="255" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="NumericType">
+    <xs:sequence>
+      <xs:element name="ComparatorCode" type="ComparatorCodeType"
+				minOccurs="0" />
+      <xs:element name="Value1">
+        <xs:simpleType>
+          <xs:restriction base="xs:float" />
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="SeperatorCode" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="10" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="Value2" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:float" />
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="Unit" type="CodedType" minOccurs="0" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="ComparatorCodeType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="0" />
+      <xs:maxLength value="10" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="StringType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="0" />
+      <xs:maxLength value="255" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="YNCodeType">
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Yes" />
+            <xs:enumeration value="No" />
+          </xs:restriction>  
+  </xs:simpleType>
+  
+    <xs:simpleType name="RestrictedDateType">
+ <xs:restriction base="xs:date">
+    <xs:minInclusive value="1900-01-01"/>
+    <xs:pattern value=".{10}"/>
+  </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="FingerPrintType">
+  	<xs:sequence>
+  		<xs:element name="dateCaptured" type="xs:date" minOccurs="0"
+  			maxOccurs="1">
+  		</xs:element>
+  		<xs:element name="rightHand" type="rightHandType"
+  			minOccurs="1" maxOccurs="1">
+  		</xs:element>
+  		<xs:element name="leftHand" type="leftHandType" minOccurs="1"
+  			maxOccurs="1">
+  		</xs:element>
+
+  	</xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="rightHandType">
+  <xs:sequence>
+  <xs:element name="RightThumb" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+    <xs:element name="RightThumbQuality" type="xs:int" minOccurs="0" maxOccurs="1"></xs:element>
+    <xs:element name="RightIndex" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element name="RightIndexQuality" type="xs:int" minOccurs="0" maxOccurs="1"></xs:element>
+      <xs:element name="RightMiddle" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+      <xs:element name="RightMiddleQuality" type="xs:int" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element name="RightWedding" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+                <xs:element name="RightWeddingQuality" type="xs:int" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:element name="RightSmall" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:element name="RightSmallQuality" type="xs:int" minOccurs="0" maxOccurs="1"></xs:element>
+            </xs:sequence>
+  </xs:complexType>
+    <xs:complexType name="leftHandType">
+  <xs:sequence>
+  <xs:element name="LeftThumb" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+   <xs:element name="LeftThumbQuality" type="xs:int" minOccurs="0" maxOccurs="1"></xs:element>
+    <xs:element name="LeftIndex" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element name="LeftIndexQuality" type="xs:int" minOccurs="0" maxOccurs="1"></xs:element>
+      <xs:element name="LeftMiddle" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+            <xs:element name="LeftMiddleQuality" type="xs:int" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element name="LeftWedding" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+                <xs:element name="LeftWeddingQuality" type="xs:int" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:element name="LeftSmall" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:element name="LeftSmallQuality" type="xs:int" minOccurs="0" maxOccurs="1"></xs:element>
+            </xs:sequence>
+  </xs:complexType>
+  
+      <xs:complexType name="HIVTestingReportType">
+    	<xs:sequence>
+    		<xs:element name="ClientCode" type="xs:string" minOccurs="1"
+    			maxOccurs="1">
+    		</xs:element>
+    		<xs:element name="VisitDate" type="xs:date" minOccurs="1"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Date of Visit
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="VisitID" type="StringType" minOccurs="1"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					The Visit ID Number
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="Setting" minOccurs="1" maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					HTC Setting
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="1" />
+    					<xs:enumeration value="2" />
+    					<xs:enumeration value="3" />
+    					<xs:enumeration value="4" />
+    					<xs:enumeration value="5" />
+    					<xs:enumeration value="6" />
+    					<xs:enumeration value="7" />
+    					<xs:enumeration value="8" />
+    					<xs:enumeration value="9" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+
+    		<xs:element name="FirstTimeVisit" minOccurs="1"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					First Time Visit
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="N" />
+    					<xs:enumeration value="Y" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="SessionType" minOccurs="0"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Type of Session
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="1" />
+    					<xs:enumeration value="2" />
+    					<xs:enumeration value="3" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="ReferredFrom" minOccurs="0"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Referred From
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="1" />
+    					<xs:enumeration value="2" />
+    					<xs:enumeration value="3" />
+    					<xs:enumeration value="4" />
+    					<xs:enumeration value="5" />
+    					<xs:enumeration value="6" />
+    					<xs:enumeration value="7" />
+    					<xs:enumeration value="8" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="MaritalStatus" minOccurs="0"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Marital Status
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="S" />
+    					<xs:enumeration value="M" />
+    					<xs:enumeration value="D" />
+    					<xs:enumeration value="A" />
+    					<xs:enumeration value="G" />
+    					<xs:enumeration value="W" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="NoOfOwnChildrenLessThan5Years"
+    			type="xs:int" minOccurs="0" maxOccurs="1">
+    		</xs:element>
+    		<xs:element name="NoOfAllWives" type="xs:int"
+    			minOccurs="0" maxOccurs="1">
+    		</xs:element>
+    		<xs:element name="IsIndexClient" minOccurs="0"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Is Client from an Index Client
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="N" />
+    					<xs:enumeration value="Y" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="IndexType" minOccurs="0" maxOccurs="1">
+    		        			<xs:annotation>
+        				<xs:documentation xml:lang="en">
+        					Index Type
+        				</xs:documentation>
+        			</xs:annotation>
+        			<xs:simpleType>
+        				<xs:restriction base="CodeType">
+        					<xs:enumeration value="1" />
+        					<xs:enumeration value="2" />
+        					<xs:enumeration value="3" />
+        				</xs:restriction>
+        			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="IndexClientId" type="xs:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xs:element>
+    		<xs:element name="ReTestingForResultVerification"
+    			minOccurs="0" maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Is Client Retesting for result verification
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="N" />
+    					<xs:enumeration value="Y" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="PreTestInformation"
+    			type="PreTestInformationType" minOccurs="0" maxOccurs="1" />
+    		<xs:element name="HIVTestResult" type="HIVTestResultType"
+    			minOccurs="0" maxOccurs="1" />
+    		<xs:element name="PostTestCounselling"
+    			type="PostTestCounsellingType" minOccurs="0" maxOccurs="1" />
+    		<xs:element name="SyphilisTestResult" minOccurs="0"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Syphilis Test Result
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="R" />
+    					<xs:enumeration value="NR" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="HBVTestResult" minOccurs="0"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Hepatitis B virus test result
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="Pos" />
+    					<xs:enumeration value="Neg" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="HCVTestResult" minOccurs="0"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Hepatitis C virus test result
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="Pos" />
+    					<xs:enumeration value="Neg" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="IndexNotificationServices"
+    			type="IndexNotificationServicesType" minOccurs="0"
+    			maxOccurs="1" />
+    		<xs:element name="CompletedBy" type="xs:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xs:element>
+    		<xs:element name="DateCompleted" type="xs:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xs:element>
+    	</xs:sequence>
+      </xs:complexType>
+    
+        <xs:complexType name="PreTestInformationType">
+    	<xs:sequence>
+    	    		<xs:element name="KnowledgeAssessment"
+    		type="KnowledgeAssessmentType" minOccurs="0"
+    		maxOccurs="1" />
+
+    	<xs:element name="HIVRiskAssessment"
+    		type="HIVRiskAssessmentType" minOccurs="0" maxOccurs="1" />
+
+    	<xs:element name="ClinicalTBScreening"
+    		type="ClinicalTBScreeningType" minOccurs="0"
+    		maxOccurs="1" />
+
+    	<xs:element name="SyndromicSTIScreening"
+    		type="SyndromicSTIScreeningType" minOccurs="0"
+    		maxOccurs="1" />
+    	</xs:sequence>
+    </xs:complexType>
+  
+
+        <xs:complexType name="HIVTestResultType">
+        	<xs:sequence>
+			<xs:element name="TestResult"
+    		type="TestResultType" minOccurs="0"
+    		maxOccurs="1" />
+        	<xs:element name="RecencyTesting"
+    		type="RecencyTestingType" minOccurs="0"
+    		maxOccurs="1" />
+        	</xs:sequence>
+        </xs:complexType>
+
+        <xs:complexType name="RecencyTestingType">
+        	<xs:sequence>
+        		<xs:element name="TestName">
+        			<xs:annotation>
+        				<xs:documentation xml:lang="en">
+        					Recency Test Name
+        				</xs:documentation>
+        			</xs:annotation>
+        			<xs:simpleType>
+        				<xs:restriction base="CodeType">
+        					<xs:enumeration value="AS" />
+        					<xs:enumeration value="OTH" />
+        				</xs:restriction>
+        			</xs:simpleType>
+        		</xs:element>
+        		<xs:element name="TestDate" type="xs:date"></xs:element>
+        		<xs:element name="SampleType">
+        			<xs:simpleType>
+        				<xs:restriction base="CodeType">
+        					<xs:enumeration value="D" />
+        					<xs:enumeration value="P" />
+        				</xs:restriction>
+        			</xs:simpleType>
+        		</xs:element>
+        		<xs:element name="DateSampleCollected" type="xs:date"
+        			minOccurs="1" maxOccurs="1">
+        			<xs:annotation>
+        				<xs:documentation xml:lang="en">
+        					Date Sample Collected
+        				</xs:documentation>
+        			</xs:annotation>
+        		</xs:element>
+        		<xs:element name="DateSampleSent" type="xs:date"
+        			minOccurs="1" maxOccurs="1">
+        			<xs:annotation>
+        				<xs:documentation xml:lang="en">
+        					Date Sample Sent
+        				</xs:documentation>
+        			</xs:annotation>
+        		</xs:element>
+        		<xs:element name="PCRLab" type="xs:string"></xs:element>
+        		<xs:element name="RapidRecencyAssay">
+        			<xs:annotation>
+        				<xs:documentation xml:lang="en">
+        					HIV recent infection testing algorithm
+        					result
+        				</xs:documentation>
+        			</xs:annotation>
+        			<xs:simpleType>
+        				<xs:restriction base="CodeType">
+        					<xs:enumeration value="R" />
+        					<xs:enumeration value="L" />
+        				</xs:restriction>
+        			</xs:simpleType>
+        		</xs:element>
+        		<xs:element name="ViralLoadConfirmationResult"
+        			type="xs:double" minOccurs="0" maxOccurs="1">
+        		</xs:element>
+        		<xs:element name="ViralLoadConfirmationTestDate"
+        			type="xs:date" minOccurs="0" maxOccurs="1">
+        		</xs:element>
+        		<xs:element name="FinalRecencyTestResult">
+        			<xs:annotation>
+        				<xs:documentation xml:lang="en">
+        					Final HIV recent infection testing algorithm
+        					result
+        				</xs:documentation>
+        			</xs:annotation>
+        			<xs:simpleType>
+        				<xs:restriction base="CodeType">
+        					<xs:enumeration value="RR" />
+        					<xs:enumeration value="RL" />
+        					<xs:enumeration value="RI" />
+        				</xs:restriction>
+        			</xs:simpleType>
+        		</xs:element>
+        		<xs:element name="Consent" type="YNCodeType"></xs:element>
+        		<xs:element name="RecencyNumber" type="xs:string"></xs:element>
+
+        		<xs:element name="ControlLine" type="YNCodeType"></xs:element>
+        		<xs:element name="VerificationLine" type="YNCodeType"></xs:element>
+        		<xs:element name="LongTermLine" type="YNCodeType"></xs:element>
+        		<xs:element name="RecencyInterpretation">
+        			<xs:simpleType>
+        				<xs:restriction base="CodeType">
+        					<xs:enumeration value="R" />
+        					<xs:enumeration value="L" />
+        					<xs:enumeration value="Neg" />
+        					<xs:enumeration value="Inv" />
+        				</xs:restriction>
+        			</xs:simpleType>
+        		</xs:element>
+        		<xs:element name="ViralLoadRequest" type="YNCodeType"></xs:element>
+
+        		<xs:element name="SampleReferenceNumber"
+        			type="xs:string">
+        		</xs:element>
+        		<xs:element name="ViralLoadClassification" type="xs:string"></xs:element>
+        	</xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="TestResultType">
+    	<xs:sequence>
+    		<xs:element name="ScreeningTestResult">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Screening Test Result
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="R" />
+    					<xs:enumeration value="NR" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="ScreeningTestResultDate" type="xs:date">
+    		<xs:annotation>
+          <xs:documentation xml:lang="en">
+            Screen Test Result Date
+          </xs:documentation>
+        </xs:annotation>
+    		</xs:element>
+    		<xs:element name="ConfirmatoryTestResult">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Confirmatory Test Result
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="R" />
+    					<xs:enumeration value="NR" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		    		<xs:element name="ConfirmatoryTestResultDate" type="xs:date">
+    		<xs:annotation>
+          <xs:documentation xml:lang="en">
+            Confirmatory Test Result Date
+          </xs:documentation>
+        </xs:annotation>
+    		</xs:element>
+    		    		<xs:element name="TieBreakerTestResult">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					TieBreaker Test Result
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="R" />
+    					<xs:enumeration value="NR" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    		<xs:element name="TieBreakerTestResultDate" type="xs:date">
+    		<xs:annotation>
+          <xs:documentation xml:lang="en">
+            TieBreaker Test Result Date
+          </xs:documentation>
+        </xs:annotation>
+    		</xs:element>
+    		    		<xs:element name="FinalTestResult">
+    			<xs:annotation>
+    				<xs:documentation xml:lang="en">
+    					Final Test Result
+    				</xs:documentation>
+    			</xs:annotation>
+    			<xs:simpleType>
+    				<xs:restriction base="CodeType">
+    					<xs:enumeration value="Pos" />
+    					<xs:enumeration value="Neg" />
+    				</xs:restriction>
+    			</xs:simpleType>
+    		</xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+        <xs:complexType name="IndexNotificationServicesType">
+        	<xs:sequence>
+        	        		<xs:element name="Partner" type="PartnerNotificationType" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        	</xs:sequence>
+        </xs:complexType>
+
+        <xs:complexType name="PartnerNotificationType">
+
+        	<xs:sequence>
+        		<xs:element name="Partnername" type="xs:string"></xs:element>
+        		<xs:element name="PartnerGender">
+        			<xs:annotation>
+        				<xs:documentation xml:lang="en">
+        					Partner Gender
+        				</xs:documentation>
+        			</xs:annotation>
+        			<xs:simpleType>
+        				<xs:restriction base="CodeType">
+        					<xs:enumeration value="M" />
+        					<xs:enumeration value="F" />
+        				</xs:restriction>
+        			</xs:simpleType>
+        		</xs:element>
+        		<xs:element name="IndexRelation">
+        			<xs:annotation>
+        				<xs:documentation xml:lang="en">
+        					Index Relationship Type
+        				</xs:documentation>
+        			</xs:annotation>
+        			<xs:simpleType>
+        				<xs:restriction base="CodeType">
+        					<xs:enumeration value="1" />
+        					<xs:enumeration value="2" />
+        					<xs:enumeration value="3" />
+        				</xs:restriction>
+        			</xs:simpleType>
+        		</xs:element>
+        		<xs:element name="DescriptiveAddress"
+        			type="xs:string">
+        		</xs:element>
+        		<xs:element name="PhoneNumber" type="xs:string"></xs:element>
+        	
+        	</xs:sequence>
+        </xs:complexType>
+
+    <xs:complexType name="IdentifierChangeType">
+     <xs:sequence>
+      <xs:element name="PatientIdentifierChange" type="xs:boolean"
+				minOccurs="0" maxOccurs="1">
+      </xs:element>
+      <xs:element name="OldPatientIdentifier" type="StringType" minOccurs="0"
+				maxOccurs="1">
+      </xs:element>
+     </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="MaternalCohortType">
+    <xs:sequence>
+      <xs:element name="VisitID" type="StringType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The unique Visit
+            Identifier
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VisitDate" type="xs:date" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Visit Date
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ViralLoadPeriod" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Viral Load Period
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />        
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+         <xs:element name="SampleCollectionDate" type="xs:date" minOccurs="0"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Visit Date
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ViralLoadResult"
+        type="xs:double" minOccurs="0" maxOccurs="1">
+        </xs:element>
+              <xs:element name="PMTCTEntryPoint" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            PMTCT Entry Point
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+            <xs:enumeration value="5" />        
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="GestationalAgeAtSampleCollection" type="xs:int" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Age in weeks the pregnancy was at sample collection
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+            <xs:element name="GestationalAge" type="xs:int" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Age in weeks the pregnancy
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+                    <xs:element name="TimingOfArtInitiation" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Timing of ART Initiation
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="AIT1" />
+            <xs:enumeration value="AIT2" />
+            <xs:enumeration value="AIT3" />
+            <xs:enumeration value="AIT4" />
+            <xs:enumeration value="AIT5" />        
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+       <xs:element name="TBStatus" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            TB Status
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+            <xs:enumeration value="5" />        
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+           <xs:element name="Gravida" type="xs:int" minOccurs="0"
+      maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Decription
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ARTStartDate" type="xs:date" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Date ART Started
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	      <xs:element name="DateOfDelivery" type="xs:date" minOccurs="0"
+    		maxOccurs="1">
+    		<xs:annotation>
+    			<xs:documentation xml:lang="en">
+    				Date of Delivery
+    			</xs:documentation>
+    		</xs:annotation>
+    	</xs:element>
+    	      <xs:element name="FamilyPlanningCounselling" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Description
+          </xs:documentation>
+        </xs:annotation>
+           <xs:simpleType>
+          <xs:restriction base="CodeType">           
+           <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />                   
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      	      <xs:element name="FamilyPlanningMethod" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Description
+          </xs:documentation>
+        </xs:annotation>
+           <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="FP1" />
+            <xs:enumeration value="FP2" />           
+            <xs:enumeration value="FP3" />
+            <xs:enumeration value="FP4" />                      
+            <xs:enumeration value="FP5" />
+            <xs:enumeration value="FP6" />           
+            <xs:enumeration value="FP7" />
+            <xs:enumeration value="FP8" />        
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>  
+    <xs:complexType name="PMTCTHTSType">
+  <xs:sequence>
+     <xs:element name="VisitID" type="StringType" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            The Visit ID Number
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+        <xs:element name="VisitDate" type="xs:date" minOccurs="1"
+				maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Date of Visit
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PMTCTEntryPoint" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            PMTCT Entry Point
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+            <xs:enumeration value="5" />        
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+            <xs:element name="PreviouslyKnownHIVPositive"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Previously Known HIV positive
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+           
+            <xs:element name="AcceptedHIVTesting"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Accepted HIV Testing
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+                  <xs:element name="HIVTestResult"  type="TestResultType" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            HIV Test Result
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+           <xs:element name="ReceivedHIVTestResult"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Received HIV Testing Result
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+            <xs:element name="HIVRetesting" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Re Testing for HIV
+          </xs:documentation>
+        </xs:annotation>
+         <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="RHN" />
+            <xs:enumeration value="SHP" />            
+          </xs:restriction>
+        </xs:simpleType>
+        </xs:element>
+               <xs:element name="TestedForHepB"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+           Description
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+     
+            <xs:element name="HepBTestResult" minOccurs="0"
+     maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en"> Description </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Pos" />
+            <xs:enumeration value="Neg" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+   <xs:element name="TestedForHepC"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Description
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+            <xs:element name="HepCTestResult" minOccurs="0"
+     maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en"> Description </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="CodeType">
+            <xs:enumeration value="Pos" />
+            <xs:enumeration value="Neg" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="HIVHBVCoInfected"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Description
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+            <xs:element name="HIVHCVCoInfected"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Description
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+            <xs:element name="AgreedToPartnerNotification"  type="xs:boolean" minOccurs="0"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Description
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+	<xs:element name="ClinicalTBScreening" type="PMTCTClinicalTBScreeningType" minOccurs="0" maxOccurs="1">
+	
+	</xs:element>
+  </xs:sequence>
+  
+  </xs:complexType>
+   
+    <xs:complexType name="PMTCTClinicalTBScreeningType">
+    <xs:sequence>
+      <xs:element name="CurrentlyCough"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Current cough
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WeightLoss" type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Weight loss
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Fever"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Fever
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="NightSweats"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Night sweats
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+            <xs:element name="ContactWithTBPositivePatient"  type="xs:boolean" minOccurs="1"
+       maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Contact With TB Positive Patient
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType> 
+</xs:schema>

@@ -1,0 +1,87 @@
+across:
+  configuration:
+    validate: false
+  web:
+    resources:
+      caching:
+        period: 2592000
+acrossHibernate:
+  create-unit-of-work-factory: true
+  hibernate-properties:
+    hibernate.format_sql: true
+    hibernate.use_sql_comments: false
+    hibernate.show_sql: false
+    hibernate.event.merge.enty_copy_observer: allow
+applicationInfo:
+  applicationId: lamisplus
+  applicationName: LAMISPLUS
+  buildDate: "@maven.build.timestamp@"
+  buildId: "@pom.version@-@build.revision@"
+build:
+  number: "@build.revision@"
+logging:
+  request-response:
+    enabled: true
+  file:
+    name: application-debug.log
+server:
+  error:
+    whitelabel:
+      enabled: false
+    include-stacktrace:
+      facility: false
+  datasource:
+    hikari:
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+  http2:
+    enabled: true
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+    connection-timeout: 20s
+spring:
+  datasource:
+    username: postgres
+    password: admin!123
+    url: jdbc:postgresql://localhost:5432/lamisplus_apapa
+    driver-class-name: org.postgresql.Driver
+    hibernate:
+      event.merge.enty_copy_observer: allow
+    hikari:
+      auto-commit: true
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+      maximum-pool-size: 60
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.enable_lazy_load_no_trans: true
+  mail:
+    host: localhost
+    port: 25
+    username:
+    password:
+    jndi-name:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  jackson:
+    jackson:
+      serialization:
+        fail-on-empty-beans: false
