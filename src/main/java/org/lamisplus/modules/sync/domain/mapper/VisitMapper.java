@@ -11,6 +11,13 @@ import org.mapstruct.Mappings;
 public interface VisitMapper {
     @Mappings({
             @Mapping(source="patient.uuid", target="patientUuid"),
+            @Mapping(source="visit.id", target="id"),
+            @Mapping(source="visit.uuid", target="uuid"),
+            @Mapping(source="visit.createdBy", target="createdBy"),
+            @Mapping(source="visit.dateCreated", target="dateCreated"),
+            @Mapping(source="visit.modifiedBy", target="modifiedBy"),
+            @Mapping(source="visit.dateModified", target="dateModified"),
+            @Mapping(source="visit.archived", target="archived")
     })
     VisitDTO toVisitDTO(Visit visit, Patient patient);
 

@@ -2,6 +2,7 @@ package org.lamisplus.modules.sync.domain.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
@@ -13,11 +14,11 @@ public class FormDataDTO {
 
     private Object data;
 
-    private LocalTime dateCreated;
+    private LocalDateTime dateCreated;
 
     private String createdBy;
 
-    private LocalTime dateModified;
+    private LocalDateTime dateModified;
 
     private String modifiedBy;
 

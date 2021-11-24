@@ -3,6 +3,7 @@ package org.lamisplus.modules.sync.domain.dto;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
@@ -29,11 +30,11 @@ public class VisitDTO {
 
     private LocalDate dateNextAppointment;
 
-    private LocalTime dateCreated;
+    private LocalDateTime dateCreated;
 
     private String createdBy;
 
-    private LocalTime dateModified;
+    private LocalDateTime dateModified;
 
     private String modifiedBy;
 

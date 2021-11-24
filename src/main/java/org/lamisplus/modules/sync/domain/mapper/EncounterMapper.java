@@ -11,6 +11,12 @@ import org.mapstruct.Mappings;
 public interface EncounterMapper {
     @Mappings({
             @Mapping(source="patient.uuid", target="patientUuid"),
+            @Mapping(source="encounter.uuid", target="uuid"),
+            @Mapping(source="encounter.createdBy", target="createdBy"),
+            @Mapping(source="encounter.modifiedBy", target="modifiedBy"),
+            @Mapping(source="encounter.dateModified", target="dateModified"),
+            @Mapping(source="encounter.archived", target="archived")
+
     })
     EncounterDTO toEncounterDTO(Encounter encounter, Patient patient);
 

@@ -15,7 +15,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode
 @Table(name = "visit")
-public class Visit implements Serializable {
+public class Visit extends Audit implements Serializable {
     @Id
     @Column(name = "id", updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
