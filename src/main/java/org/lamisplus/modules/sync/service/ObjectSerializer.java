@@ -13,10 +13,7 @@ import org.lamisplus.modules.sync.domain.mapper.EncounterMapper;
 import org.lamisplus.modules.sync.domain.mapper.FormDataMapper;
 import org.lamisplus.modules.sync.domain.mapper.PatientMapper;
 import org.lamisplus.modules.sync.domain.mapper.VisitMapper;
-import org.lamisplus.modules.sync.repository.EncounterRepository;
-import org.lamisplus.modules.sync.repository.FormDataRepository;
-import org.lamisplus.modules.sync.repository.PatientRepository;
-import org.lamisplus.modules.sync.repository.VisitRepository;
+import org.lamisplus.modules.sync.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,12 +31,13 @@ public class ObjectSerializer {
     private final EncounterMapper encounterMapper;
     private final FormDataMapper formDataMapper;
     private final VisitMapper visitMapper;
+    private  final  ClientRepository clientRepository;
 
     public List<Object> serialize(String table, long facilityId) {
         List<Object> arrayList = new ArrayList<Object>();
         switch (table) {
             case "patient" :
-                List<Patient> patientList = patientRepository.findAll();
+                List<Patient> patientList = clientRepository.findOrderedByNumberLimitedTo(5);
                 patientList.forEach(patient -> {
                     PatientDTO patientDTO = patientMapper.toPatientDTO(patient);
                     arrayList.add(patientDTO);

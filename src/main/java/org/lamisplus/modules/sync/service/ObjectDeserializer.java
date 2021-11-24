@@ -47,7 +47,8 @@ public class ObjectDeserializer {
                         PatientDTO patientDTO = objectMapper.readValue(object.toString(), PatientDTO.class);
                         Patient patient = patientMapper.toPatient(patientDTO);
                         patientRepository.findByUuid(patient.getUuid()).ifPresent(value -> patient.setId(value.getId()));
-                        patientRepository.save(patient);
+                        System.out.println("patient: "+ patient.toString());
+                        //patientRepository.save(patient);
                     }
                     break;
                 case "visit" :
