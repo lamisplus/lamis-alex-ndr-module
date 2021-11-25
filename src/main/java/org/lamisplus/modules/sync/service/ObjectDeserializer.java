@@ -50,7 +50,7 @@ public class ObjectDeserializer {
                         Patient patient = patientMapper.toPatient(patientDTO);
                         patientRepository.findByUuid(patient.getUuid()).ifPresent(value -> patient.setId(value.getId()));
                         System.out.println("patient: "+ patient.toString());
-                        //patientRepository.save(patient);
+                        patientRepository.save(patient);
                     }
                     break;
                 case "visit" :

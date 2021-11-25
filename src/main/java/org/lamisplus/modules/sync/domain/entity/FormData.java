@@ -25,7 +25,7 @@ public class FormData extends JsonBEntity implements Serializable {
     private Long id;
 
     @Basic
-    @Column(name = "uuid", updatable = false)
+    @Column(name = "uuid", updatable = true)
     @JsonIgnore
     private String uuid;
 
@@ -42,6 +42,7 @@ public class FormData extends JsonBEntity implements Serializable {
     @Column(name = "organisation_unit_id", updatable = false)
     @JsonIgnore
     private Long organisationUnitId;
+/*
 
     @CreatedBy
     @Column(name = "created_by", nullable = false, updatable = false)
@@ -66,5 +67,6 @@ public class FormData extends JsonBEntity implements Serializable {
     @JsonIgnore
     @ToString.Exclude
     private LocalDateTime dateModified;
+*/
 
 }

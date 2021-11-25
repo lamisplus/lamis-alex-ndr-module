@@ -20,6 +20,7 @@ public class FormDataDTO {
 
     private Object data;
 
+/*
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -33,6 +34,7 @@ public class FormDataDTO {
     private LocalDateTime dateModified;
 
     private String modifiedBy;
+*/
 
     private int archived;
 }

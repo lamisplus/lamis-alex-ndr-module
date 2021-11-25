@@ -16,8 +16,7 @@ public interface FormDataMapper {
             @Mapping(source="formData.createdBy", target="createdBy"),
             @Mapping(source="formData.dateCreated", target="dateCreated"),
             @Mapping(source="formData.modifiedBy", target="modifiedBy"),
-            @Mapping(source="formData.dateModified", target="dateModified"),
-            @Mapping(source="formData.organisationUnitId", target="organisationUnitId")
+            @Mapping(source="formData.dateModified", target="dateModified")
     })
     FormDataDTO toFormDataDTO(FormData formData, Encounter encounter);
 
