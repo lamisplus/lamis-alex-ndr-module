@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.sync.service.ObjectSerializer;
 import org.lamisplus.modules.sync.utility.HttpConnectionManager;
+import org.lamisplus.modules.sync.utility.UuidService;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -33,14 +34,17 @@ public class ClientController {
         //appointment,
         //biometric
     };
+
+    private final UuidService uuidService;
     private final ObjectSerializer objectSerializer;
     private final ObjectMapper mapper = new ObjectMapper();
-
 
     @GetMapping("/{facilityId}")
     public ResponseEntity<String> sender(@PathVariable("facilityId") Long facilityId) throws JSONException {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        uuidService.addUuid();
 
         try {
             for (Tables table : Tables.values()) {

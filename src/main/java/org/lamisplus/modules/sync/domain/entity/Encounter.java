@@ -31,7 +31,7 @@ public class Encounter implements Serializable {
     private Long id;
 
     @Basic
-    @Column(name = "uuid", updatable = false)
+    @Column(name = "uuid", updatable = true)
     @JsonIgnore
     private String uuid;
 
