@@ -30,8 +30,8 @@ public class ClientController {
         visit,
         encounter,
         form_data,
-        appointment
-//        biometric
+        //appointment,
+        //biometric
     };
     private final ObjectSerializer objectSerializer;
     private final ObjectMapper mapper = new ObjectMapper();

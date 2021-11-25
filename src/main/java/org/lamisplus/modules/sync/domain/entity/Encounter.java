@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.lamisplus.modules.sync.utility.LocalDateConverter;
+import org.lamisplus.modules.sync.utility.LocalTimeAttributeConverter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 
@@ -49,19 +51,19 @@ public class Encounter implements Serializable {
 
     @Basic
     @Column(name = "date_encounter")
-   // @Convert(converter = LocalDateConverter.class)
+   @Convert(converter = LocalDateConverter.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate dateEncounter;
 
     @Basic
-    @Column(name = "date_created")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
-   // @Convert(converter = LocalTimeAttributeConverter.class)
-    private LocalTime timeCreated;
-
-    @Basic
     @Column(name = "organisation_unit_id", updatable = false)
     private Long organisationUnitId;
+
+    @Basic
+    @Column(name = "date_created")
+    @JsonIgnore
+    @UpdateTimestamp
+    private LocalDateTime dateCreated;
 
     @CreatedBy
     @Basic
