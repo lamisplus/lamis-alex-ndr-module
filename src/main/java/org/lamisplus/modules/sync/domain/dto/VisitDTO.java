@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @Data
 public class VisitDTO {
 
-    Long id;
+   Long id;
     private String uuid;
 
     private String patientUuid;

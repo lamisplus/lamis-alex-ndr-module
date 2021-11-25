@@ -17,7 +17,7 @@ public interface VisitMapper {
             @Mapping(source="visit.dateCreated", target="dateCreated"),
             @Mapping(source="visit.modifiedBy", target="modifiedBy"),
             @Mapping(source="visit.dateModified", target="dateModified"),
-            @Mapping(source="visit.organisationUnitId", target="organisationUnitId"),
+            @Mapping(source="visit.id", target="id"),
             @Mapping(source="visit.archived", target="archived")
     })
     VisitDTO toVisitDTO(Visit visit, Patient patient);
