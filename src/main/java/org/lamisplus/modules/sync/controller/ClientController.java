@@ -26,10 +26,10 @@ import java.util.List;
 @RequestMapping("/api/sync")
 public class ClientController {
     public enum Tables {
-        patient,
-        visit,
-        encounter,
-        form_data,
+        patient
+        //visit,
+        //encounter,
+        //form_data,
         //appointment,
         //biometric
     };
