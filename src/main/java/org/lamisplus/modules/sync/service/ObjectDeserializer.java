@@ -22,6 +22,8 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class ObjectDeserializer {
@@ -47,7 +49,7 @@ public class ObjectDeserializer {
                         PatientDTO patientDTO = objectMapper.readValue(object.toString(), PatientDTO.class);
                         Patient patient = patientMapper.toPatient(patientDTO);
                         patientRepository.findByUuid(patient.getUuid()).ifPresent(value -> patient.setId(value.getId()));
-//                        System.out.println("patient: "+ patient.toString());
+                        System.out.println("patient: "+ patient.toString());
                         //patientRepository.save(patient);
                     }
                     break;
@@ -56,8 +58,12 @@ public class ObjectDeserializer {
                         object = jsonArray.optJSONObject(i);
                         VisitDTO visitDTO = objectMapper.readValue(object.toString(), VisitDTO.class);
                         Visit visit = visitMapper.toVisit(visitDTO);
-                        patientRepository.findByUuid(visitDTO.getPatientUuid()).ifPresent(value -> visit.setPatientId(value.getId()));
-                        visitRepository.save(visit);
+                        Optional<Patient> patient = patientRepository.findByUuid(visitDTO.getPatientUuid());
+                        if(patient.isPresent()) {
+                            visit.setPatientId(patient.get().getId());
+                            patientRepository.findByUuid(visitDTO.getPatientUuid()).ifPresent(value -> visit.setPatientId(value.getId()));
+                            visitRepository.save(visit);
+                        }
                     }
                     break;
                 case "encounter" :
@@ -65,10 +71,16 @@ public class ObjectDeserializer {
                         object = jsonArray.optJSONObject(i);
                         EncounterDTO encounterDTO = objectMapper.readValue(object.toString(), EncounterDTO.class);
                         Encounter encounter = encounterMapper.toEncounter(encounterDTO);
-                        patientRepository.findByUuid(encounterDTO.getPatientUuid()).ifPresent(value -> encounter.setPatientId(value.getId()));
-                        visitRepository.findByUuid(encounterDTO.getVisitUuid()).ifPresent(value -> encounter.setVisitId(value.getId()));
-                        visitRepository.findByUuid(encounterDTO.getVisitUuid()).ifPresent(value -> encounter.setVisitId(value.getId()));
-                        encounterRepository.save(encounter);
+                        Optional<Patient> patient = patientRepository.findByUuid(encounterDTO.getPatientUuid());
+                        if(patient.isPresent()) {
+                            encounter.setPatientId(patient.get().getId());
+                            Optional<Visit> visit = visitRepository.findByUuid(encounterDTO.getVisitUuid());
+                            if(visit.isPresent()) {
+                                encounter.setVisitId(visit.get().getId());
+                                encounterRepository.findByUuid(encounterDTO.getUuid()).ifPresent(value -> encounter.setId(value.getId()));
+                                encounterRepository.save(encounter);
+                            }
+                        }
                     }
                     break;
                 case "form_data" :
@@ -76,8 +88,12 @@ public class ObjectDeserializer {
                         object = jsonArray.optJSONObject(i);
                         FormDataDTO formDataDTO = objectMapper.readValue(object.toString(), FormDataDTO.class);
                         FormData formData = formDataMapper.toFormData(formDataDTO);
-                        encounterRepository.findByUuid(formDataDTO.getEncounterUuid()).ifPresent(value -> formData.setEncounterId(value.getId()));
-                        formDataRepository.save(formData);
+                        Optional<Encounter> encounter = encounterRepository.findByUuid(formDataDTO.getEncounterUuid());
+                        if(encounter.isPresent()) {
+                            formData.setEncounterId(encounter.get().getId());
+                            formDataRepository.findByUuid(formDataDTO.getUuid()).ifPresent(value -> formData.setId(value.getId()));
+                            formDataRepository.save(formData);
+                        }
                     }
                     break;
                 default:
