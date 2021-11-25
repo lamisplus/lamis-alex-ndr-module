@@ -29,7 +29,6 @@ public class PatientDTO {
 
    private Object details;
 
-    //private String organisationUnitUuid;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
