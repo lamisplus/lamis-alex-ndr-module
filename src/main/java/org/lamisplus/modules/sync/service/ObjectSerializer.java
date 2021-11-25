@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,43 +33,57 @@ public class ObjectSerializer {
     private final EncounterMapper encounterMapper;
     private final FormDataMapper formDataMapper;
     private final VisitMapper visitMapper;
-    private  final  ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
 
     public List<Object> serialize(String table, long facilityId) {
         List<Object> arrayList = new ArrayList<Object>();
         switch (table) {
-            case "patient" :
+            case "patient":
                 List<Patient> patientList = clientRepository.findOrderedByNumberLimitedTo(5);
                 patientList.forEach(patient -> {
                     PatientDTO patientDTO = patientMapper.toPatientDTO(patient);
                     arrayList.add(patientDTO);
                 });
                 break;
-            case "visit" :
+            case "visit":
                 List<Visit> visitList = visitRepository.findAll();
                 visitList.forEach(visit -> {
                     Patient patient = patientRepository.getById(visit.getPatientId());
+                    if (visit.getUuid() == null) {
+                        visit.setUuid(UUID.randomUUID().toString());
+                        visitRepository.save(visit);
+                    }
                     VisitDTO visitDTO = visitMapper.toVisitDTO(visit, patient);
                     arrayList.add(visitDTO);
                 });
                 break;
-            case "encounter" :
+            case "encounter":
                 List<Encounter> encounterList = encounterRepository.findAll();
                 encounterList.forEach(encounter -> {
                     Patient patient = patientRepository.getById(encounter.getPatientId());
-                    EncounterDTO encounterDTO = encounterMapper.toEncounterDTO(encounter, patient);
+                    if (encounter.getUuid() == null) {
+                        encounter.setUuid(UUID.randomUUID().toString());
+                        encounterRepository.save(encounter);
+                    }
+                    Visit visit = visitRepository.getById(encounter.getVisitId());
+                    EncounterDTO encounterDTO = encounterMapper.toEncounterDTO(encounter, patient, visit);
+
                     arrayList.add(encounterDTO);
                 });
                 break;
-            case "form_data" :
+            case "form_data":
                 List<FormData> formDataList = formDataRepository.findAll();
                 formDataList.forEach(formData -> {
                     Encounter encounter = encounterRepository.getById(formData.getEncounterId());
+                    if (formData.getUuid() == null) {
+                        formData.setUuid(UUID.randomUUID().toString());
+                        formDataRepository.save(formData);
+                    }
                     FormDataDTO formDataDTO = formDataMapper.toFormDataDTO(formData, encounter);
                     arrayList.add(formDataDTO);
                 });
                 break;
-            case "appointment" :
+            case "appointment":
                 //retrieve appointment
             default:
                 //retrieve biometric

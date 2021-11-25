@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -40,13 +41,13 @@ public class Visit extends Audit implements Serializable {
     @Column(name = "time_visit_start")
   //  @Convert(converter = LocalTimeAttributeConverter.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
-    private LocalTime timeVisitStart;
+    private LocalDateTime timeVisitStart;
 
     @Basic
     @Column(name = "time_visit_end", nullable = true)
   //  @Convert(converter = LocalTimeAttributeConverter.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
-    private LocalTime timeVisitEnd;
+    private LocalDateTime timeVisitEnd;
 
     @Basic
     @Column(name = "date_next_appointment")
