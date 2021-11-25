@@ -23,15 +23,14 @@ public class QueueManager {
         SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HHmmss.ms");
 
-        String folder = ("sync/").concat(Long.toString(facilityId).concat("/"));
+        String folder = ("sync/").concat(Long.toString(facilityId).concat("/")).concat(table).concat("/");
         String fileName = dateFormat.format(date) + "_" + timeFormat.format(date) + ".json";
         File file = new File(folder.concat(fileName));
 
         FileUtils.writeStringToFile(file, data, Charset.defaultCharset());
         //Save sync in queue tableLogger.("data: {}", table);
-        System.out.println("table : "+  table);
-        System.out.println("data : "+  data);
-       objectDeserializer.deserialize(data, table);
+
+     objectDeserializer.deserialize(data, table);
     }
 
     public void process(String data, String table) {

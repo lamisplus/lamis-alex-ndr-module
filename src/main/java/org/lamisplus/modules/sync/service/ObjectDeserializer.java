@@ -22,6 +22,8 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class ObjectDeserializer {
@@ -41,17 +43,17 @@ public class ObjectDeserializer {
             JSONObject object = new JSONObject();
             JSONArray jsonArray = new JSONArray(data);
             switch (table) {
-                case "patient" :
+                case "patient":
                     for (int i = 0; i < jsonArray.length(); i++) {
                         object = jsonArray.optJSONObject(i);
                         PatientDTO patientDTO = objectMapper.readValue(object.toString(), PatientDTO.class);
                         Patient patient = patientMapper.toPatient(patientDTO);
                         patientRepository.findByUuid(patient.getUuid()).ifPresent(value -> patient.setId(value.getId()));
-                        System.out.println("patient: "+ patient.toString());
-                        //patientRepository.save(patient);
+                        patientRepository.save(patient);
                     }
                     break;
-                case "visit" :
+                case "visit":
+                    System.out.println("saving visit records on the server");
                     for (int i = 0; i < jsonArray.length(); i++) {
                         object = jsonArray.optJSONObject(i);
                         VisitDTO visitDTO = objectMapper.readValue(object.toString(), VisitDTO.class);
@@ -60,16 +62,19 @@ public class ObjectDeserializer {
                         visitRepository.save(visit);
                     }
                     break;
-                case "encounter" :
+                case "encounter":
                     for (int i = 0; i < jsonArray.length(); i++) {
                         object = jsonArray.optJSONObject(i);
                         EncounterDTO encounterDTO = objectMapper.readValue(object.toString(), EncounterDTO.class);
                         Encounter encounter = encounterMapper.toEncounter(encounterDTO);
-                        patientRepository.findByUuid(encounterDTO.getPatientUuid()).ifPresent(value -> encounter.setPatientId(value.getId()));
+                        visitRepository.findByUuid(encounterDTO.getVisitUuid())
+                                .ifPresent(value -> encounter.setVisitId(value.getId()));
+                        patientRepository.findByUuid(encounterDTO.getPatientUuid())
+                                .ifPresent(value -> encounter.setPatientId(value.getId()));
                         encounterRepository.save(encounter);
                     }
                     break;
-                case "form_data" :
+                case "form_data":
                     for (int i = 0; i < jsonArray.length(); i++) {
                         object = jsonArray.optJSONObject(i);
                         FormDataDTO formDataDTO = objectMapper.readValue(object.toString(), FormDataDTO.class);
@@ -80,8 +85,7 @@ public class ObjectDeserializer {
                     break;
                 default:
             }
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             exception.printStackTrace();
             throw new RuntimeException(exception);
         }

@@ -4,6 +4,7 @@ import okhttp3.*;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class HttpConnectionManager {
     private final OkHttpClient httpClient = new OkHttpClient();
@@ -43,7 +44,14 @@ public class HttpConnectionManager {
                 .post(body)
                 .build();
 
-        try (Response response = httpClient.newCall(request).execute()) {
+        try (Response response = httpClient
+                .newBuilder()
+                .connectTimeout(30, TimeUnit.MINUTES)
+                .readTimeout(30, TimeUnit.MINUTES)
+                .writeTimeout(30, TimeUnit.MINUTES)
+                .build()
+                .newCall(request).execute()
+        ) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             // Get response body

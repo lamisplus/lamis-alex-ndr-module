@@ -51,13 +51,13 @@ public class Encounter implements Serializable {
     @Column(name = "date_encounter")
    // @Convert(converter = LocalDateConverter.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private LocalDate dateEncounter;
+    private LocalDateTime dateEncounter;
 
     @Basic
     @Column(name = "date_created")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
    // @Convert(converter = LocalTimeAttributeConverter.class)
-    private LocalTime timeCreated;
+    private LocalDateTime timeCreated;
 
     @Basic
     @Column(name = "organisation_unit_id", updatable = false)

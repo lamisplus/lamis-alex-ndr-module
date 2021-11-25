@@ -16,6 +16,7 @@ import org.lamisplus.modules.sync.domain.mapper.VisitMapper;
 import org.lamisplus.modules.sync.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +56,8 @@ public class ObjectSerializer {
                 List<Encounter> encounterList = encounterRepository.findAll();
                 encounterList.forEach(encounter -> {
                     Patient patient = patientRepository.getById(encounter.getPatientId());
-                    EncounterDTO encounterDTO = encounterMapper.toEncounterDTO(encounter, patient);
+                    Visit visit = visitRepository.getById(encounter.getVisitId());
+                    EncounterDTO encounterDTO = encounterMapper.toEncounterDTO(encounter, patient, visit);
                     arrayList.add(encounterDTO);
                 });
                 break;
