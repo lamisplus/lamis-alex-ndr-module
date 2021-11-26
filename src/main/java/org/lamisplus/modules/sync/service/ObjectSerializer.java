@@ -47,13 +47,10 @@ public class ObjectSerializer {
                 });
                 break;
             case "visit":
+                uuidService.addUuid(table);
                 List<Visit> visitList = visitRepository.findAll();
                 visitList.forEach(visit -> {
                     Patient patient = patientRepository.getById(visit.getPatientId());
-                    if (visit.getUuid() == null) {
-                        visit.setUuid(UUID.randomUUID().toString());
-                        visitRepository.save(visit);
-                    }
                     VisitDTO visitDTO = visitMapper.toVisitDTO(visit, patient);
                     arrayList.add(visitDTO);
                 });
@@ -70,13 +67,10 @@ public class ObjectSerializer {
                 );
                 break;
             case "form_data":
+                uuidService.addUuid(table);
                 List<FormData> formDataList = formDataRepository.findAll();
                 formDataList.forEach(formData -> {
                     Encounter encounter = encounterRepository.getById(formData.getEncounterId());
-                    if (formData.getUuid() == null) {
-                        formData.setUuid(UUID.randomUUID().toString());
-                        formDataRepository.save(formData);
-                    }
                     FormDataDTO formDataDTO = formDataMapper.toFormDataDTO(formData, encounter);
                     arrayList.add(formDataDTO);
                 });
