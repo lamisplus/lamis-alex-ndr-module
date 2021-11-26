@@ -14,12 +14,11 @@ import org.lamisplus.modules.sync.domain.mapper.FormDataMapper;
 import org.lamisplus.modules.sync.domain.mapper.PatientMapper;
 import org.lamisplus.modules.sync.domain.mapper.VisitMapper;
 import org.lamisplus.modules.sync.repository.*;
+import org.lamisplus.modules.sync.utility.UuidService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,12 +34,13 @@ public class ObjectSerializer {
     private final FormDataMapper formDataMapper;
     private final VisitMapper visitMapper;
     private final ClientRepository clientRepository;
+    private final UuidService uuidService;
 
     public List<Object> serialize(String table, long facilityId) {
         List<Object> arrayList = new ArrayList<Object>();
         switch (table) {
             case "patient":
-                List<Patient> patientList = clientRepository.findOrderedByNumberLimitedTo(5);
+                List<Patient> patientList = patientRepository.findAll();
                 patientList.forEach(patient -> {
                     PatientDTO patientDTO = patientMapper.toPatientDTO(patient);
                     arrayList.add(patientDTO);
@@ -59,18 +59,15 @@ public class ObjectSerializer {
                 });
                 break;
             case "encounter":
+                uuidService.addUuid(table);
                 List<Encounter> encounterList = encounterRepository.findAll();
                 encounterList.forEach(encounter -> {
-                    Patient patient = patientRepository.getById(encounter.getPatientId());
-                    if (encounter.getUuid() == null) {
-                        encounter.setUuid(UUID.randomUUID().toString());
-                        encounterRepository.save(encounter);
-                    }
-                    Visit visit = visitRepository.getById(encounter.getVisitId());
-                    EncounterDTO encounterDTO = encounterMapper.toEncounterDTO(encounter, patient, visit);
-
-                    arrayList.add(encounterDTO);
-                });
+                            Patient patient = patientRepository.getById(encounter.getPatientId());
+                            Visit visit = visitRepository.getById(encounter.getVisitId());
+                            EncounterDTO encounterDTO = encounterMapper.toEncounterDTO(encounter, patient, visit);
+                            arrayList.add(encounterDTO);
+                        }
+                );
                 break;
             case "form_data":
                 List<FormData> formDataList = formDataRepository.findAll();

@@ -1,10 +1,10 @@
 package org.lamisplus.modules.sync.domain.entity;
 
 public enum Tables {
-   // patient
-   // visit
+    patient,
+    visit,
     encounter,
-    //form_data
-   // appointment
+    form_data
+    // appointment
 //        biometric
 };
