@@ -25,7 +25,7 @@ public class FormData extends JsonBEntity implements Serializable {
     private Long id;
 
     @Basic
-    @Column(name = "uuid", updatable = true)
+    @Column(name = "uuid", updatable = false)
     @JsonIgnore
     private String uuid;
 
@@ -42,31 +42,29 @@ public class FormData extends JsonBEntity implements Serializable {
     @Column(name = "organisation_unit_id", updatable = false)
     @JsonIgnore
     private Long organisationUnitId;
-/*
-
-    @CreatedBy
-    @Column(name = "created_by", nullable = false, updatable = false)
-    @JsonIgnore
-    @ToString.Exclude
-    private String createdBy;
-
-    @CreatedDate
-    @Column(name = "date_created", nullable = false, updatable = false)
-    @JsonIgnore
-    @ToString.Exclude
-    private LocalDateTime dateCreated;
-
-    @LastModifiedBy
-    @Column(name = "modified_by")
-    @JsonIgnore
-    @ToString.Exclude
-    private String modifiedBy;
-
-    @LastModifiedDate
-    @Column(name = "date_modified")
-    @JsonIgnore
-    @ToString.Exclude
-    private LocalDateTime dateModified;
-*/
+//
+//    @CreatedBy
+//    @Column(name = "created_by", nullable = false, updatable = false)
+//    @JsonIgnore
+//    @ToString.Exclude
+//    private String createdBy;
+//
+//    @CreatedDate
+//    @Column(name = "date_created", nullable = false, updatable = false)
+//    @JsonIgnore
+//    @ToString.Exclude
+//    private LocalDateTime dateCreated;
+//
+//    @LastModifiedBy
+//    @Column(name = "modified_by")
+//    @JsonIgnore
+//    @ToString.Exclude
+//    private String modifiedBy;
+//
+//    @LastModifiedDate
+//    @Column(name = "date_modified")
+//    @JsonIgnore
+//    @ToString.Exclude
+//    private LocalDateTime dateModified;
 
 }
