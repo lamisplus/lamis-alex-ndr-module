@@ -36,6 +36,7 @@ public class Encounter implements Serializable {
     @Basic
     @Column(name = "patient_id", nullable = false)
     private Long patientId;
+
     @Basic
     @Column(name = "visit_id", nullable = false)
     private Long visitId;
@@ -49,14 +50,12 @@ public class Encounter implements Serializable {
 
     @Basic
     @Column(name = "date_encounter")
-   // @Convert(converter = LocalDateConverter.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDateTime dateEncounter;
 
     @Basic
     @Column(name = "date_created")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
-   // @Convert(converter = LocalTimeAttributeConverter.class)
     private LocalDateTime timeCreated;
 
     @Basic

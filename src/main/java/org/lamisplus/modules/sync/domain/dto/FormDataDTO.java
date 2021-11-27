@@ -24,13 +24,4 @@ public class FormDataDTO {
 
     private Long organisationUnitId;
 
-//    private LocalDateTime dateCreated;
-//
-//    private String createdBy;
-//
-//    private LocalDateTime dateModified;
-//
-//    private String modifiedBy;
-
-//    private int archived;
 }

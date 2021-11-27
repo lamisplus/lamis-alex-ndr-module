@@ -1,4 +1,4 @@
-package org.lamisplus.modules.sync.utility;
+package org.lamisplus.modules.sync.service;
 
 import lombok.RequiredArgsConstructor;
 import org.lamisplus.modules.sync.domain.entity.Encounter;
