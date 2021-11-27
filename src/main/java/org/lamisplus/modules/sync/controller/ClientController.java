@@ -6,14 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lamisplus.modules.sync.domain.entity.SyncHistory;
 import org.lamisplus.modules.sync.domain.entity.Tables;
 import org.lamisplus.modules.sync.service.ObjectSerializer;
+import org.lamisplus.modules.sync.service.SyncHistoryService;
+import org.lamisplus.modules.sync.service.UuidService;
 import org.lamisplus.modules.sync.utility.HttpConnectionManager;
-<<<<<<<<< Temporary merge branch 1
-import org.lamisplus.modules.sync.utility.UuidService;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-=========
->>>>>>>>> Temporary merge branch 2
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -29,44 +29,42 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/sync")
 public class ClientController {
-<<<<<<<<< Temporary merge branch 1
-    public enum Tables {
-        patient
-        //visit,
-        //encounter,
-        //form_data,
-        //appointment,
-        //biometric
-    };
 
-    private final UuidService uuidService;
-=========
-
->>>>>>>>> Temporary merge branch 2
+    private final SyncHistoryService syncHistoryService;
     private final ObjectSerializer objectSerializer;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @GetMapping("/{facilityId}")
-    public ResponseEntity<String> sender(@PathVariable("facilityId") Long facilityId) throws JSONException {
+    @Value("${lamis.api.sync}")
+    private String serverUrl;
+    public ResponseEntity<String> sender(@PathVariable("facilityId") Long facilityId) throws Exception  {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-        uuidService.addUuid();
-
         try {
-            for (Tables table : Tables.values()) {
-                List<Object> objects = objectSerializer.serialize(table.name(), facilityId);
-                // Convert object to JSON string and post to the server url
-                String pathVariable = table.name().concat("/").concat(Long.toString(facilityId));
-                String response = new HttpConnectionManager().post(mapper.writeValueAsString(objects),
-                        "http://localhost:8080/api/sync/" + pathVariable);
-                System.out.println("Response from server: " + response);
-            }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        LocalDateTime localDateTime = LocalDateTime.now();
+        for (Tables table : Tables.values()) {
+        SyncHistory syncHistory = syncHistoryService.getSyncHistory(table.name(), facilityId);
+        List<Object> objects = objectSerializer.serialize(table.name(), facilityId, syncHistory.getDateLastSync());
+        // Convert object to JSON string and post to the server url
+        String pathVariable = table.name().concat("/").concat(Long.toString(facilityId));
+        // Convert object to JSON string and post to the server url
+        //String response = new HttpConnectionManager().post(mapper.writeValueAsString(objects), "http://localhost:8080/api/sync/" + pathVariable);
+
+        // Convert object to byte array and post to the server url
+        String response = new HttpConnectionManager().post(mapper.writeValueAsBytes(objects),
+        serverUrl.concat(pathVariable));
+        System.out.println("Response from server: "+response);
+
+        //Save time this table was synced to the server successfully
+        syncHistory.setTableName(table.name());
+        syncHistory.setOrganisationUnitId(facilityId);
+        syncHistory.setDateLastSync(localDateTime);
+        syncHistoryService.save(syncHistory);
         }
         return ResponseEntity.ok("Successful");
-    }
+        } catch (IOException e) {
+        e.printStackTrace();
+        }
+        return ResponseEntity.ok("Fail");
+        }
 }

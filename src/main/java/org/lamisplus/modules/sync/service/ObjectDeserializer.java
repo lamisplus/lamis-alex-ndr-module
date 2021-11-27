@@ -46,20 +46,23 @@ public class ObjectDeserializer {
                     List<VisitDTO> visitDTOS = objectMapper.readValue(data, new TypeReference<List<VisitDTO>>() {});
                     visitDTOS.forEach(visitDTO -> {
                         Visit visit = visitMapper.toVisit(visitDTO);
-                        patientRepository.findByUuid(visitDTO.getPatientUuid()).ifPresent(value -> visit.setPatientId(value.getId()));
-                        visitRepository.findByUuid(visit.getUuid()).ifPresent(value->visit.setId(value.getId()));
-                        visitRepository.save(visit);
+                        patientRepository.findByUuid(visitDTO.getPatientUuid())
+                                .ifPresent(patient ->{
+                                    visit.setPatientId(patient.getId());
+                                    visitRepository.findByUuid(visit.getUuid())
+                                            .ifPresent(visitDb -> visit.setId(visitDb.getId()));
+                                    visitRepository.save(visit);
+                                } );
                     });
-
                     break;
                 case "encounter":
                     List<EncounterDTO> encounterDTOS = objectMapper.readValue(data, new TypeReference<List<EncounterDTO>>() {});
                     encounterDTOS.forEach(encounterDTO -> {
                         Encounter encounter = encounterMapper.toEncounter(encounterDTO);
-                        visitRepository.findByUuid(encounterDTO.getVisitUuid())
-                                .ifPresent(value -> encounter.setVisitId(value.getId()));
                         patientRepository.findByUuid(encounterDTO.getPatientUuid())
                                 .ifPresent(value -> encounter.setPatientId(value.getId()));
+                        visitRepository.findByUuid(encounterDTO.getVisitUuid())
+                                .ifPresent(value -> encounter.setVisitId(value.getId()));
                         encounterRepository.findByUuid(encounter.getUuid())
                                 .ifPresent(value-> encounter.setId(value.getId()));
                         encounterRepository.save(encounter);
