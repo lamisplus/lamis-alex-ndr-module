@@ -12,8 +12,8 @@ import org.mapstruct.Mappings;
 public interface EncounterMapper {
     @Mappings({
             @Mapping(source="patient.uuid", target="patientUuid"),
-            @Mapping(source="encounter.uuid", target="uuid"),
             @Mapping(source="visit.uuid", target="visitUuid"),
+            @Mapping(source="encounter.uuid", target="uuid"),
             @Mapping(source="encounter.createdBy", target="createdBy"),
             @Mapping(source="encounter.timeCreated", target="dateCreated"),
             @Mapping(source="encounter.modifiedBy", target="modifiedBy"),

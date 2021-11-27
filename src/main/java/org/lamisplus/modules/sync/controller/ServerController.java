@@ -17,8 +17,8 @@ public class ServerController {
     private final QueueManager queueManager;
 
     @PostMapping("/{table}/{facilityId}")
-    public ResponseEntity<String> receiver(@RequestBody String data, @PathVariable String table, @PathVariable Long facilityId) throws IOException {
-        queueManager.queue(data, table, facilityId);
+    public ResponseEntity<String> receiver(@RequestBody byte[] bytes, @PathVariable String table, @PathVariable Long facilityId) throws IOException {
+        queueManager.queue(bytes, table, facilityId);
         return ResponseEntity.ok("Ok");
     }
 }
