@@ -13,10 +13,16 @@ public interface FormDataMapper {
             @Mapping(source="encounter.uuid", target="encounterUuid"),
             @Mapping(source="formData.uuid", target="uuid"),
             @Mapping(source="formData.organisationUnitId", target="organisationUnitId"),
-            @Mapping(source="formData.createdBy", target="createdBy"),
+/*            @Mapping(source="formData.createdBy", target="createdBy"),
             @Mapping(source="formData.dateCreated", target="dateCreated"),
             @Mapping(source="formData.modifiedBy", target="modifiedBy"),
+<<<<<<<<< Temporary merge branch 1
             @Mapping(source="formData.dateModified", target="dateModified")
+*/
+=========
+            @Mapping(source="formData.dateModified", target="dateModified"),
+            @Mapping(source="formData.organisationUnitId", target="organisationUnitId")
+>>>>>>>>> Temporary merge branch 2
     })
     FormDataDTO toFormDataDTO(FormData formData, Encounter encounter);
 

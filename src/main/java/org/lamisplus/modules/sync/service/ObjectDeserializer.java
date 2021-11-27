@@ -1,28 +1,16 @@
 package org.lamisplus.modules.sync.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.lamisplus.modules.sync.domain.dto.EncounterDTO;
-import org.lamisplus.modules.sync.domain.dto.FormDataDTO;
-import org.lamisplus.modules.sync.domain.dto.PatientDTO;
-import org.lamisplus.modules.sync.domain.dto.VisitDTO;
-import org.lamisplus.modules.sync.domain.entity.Encounter;
-import org.lamisplus.modules.sync.domain.entity.FormData;
-import org.lamisplus.modules.sync.domain.entity.Patient;
-import org.lamisplus.modules.sync.domain.entity.Visit;
-import org.lamisplus.modules.sync.domain.mapper.EncounterMapper;
-import org.lamisplus.modules.sync.domain.mapper.FormDataMapper;
-import org.lamisplus.modules.sync.domain.mapper.PatientMapper;
-import org.lamisplus.modules.sync.domain.mapper.VisitMapper;
-import org.lamisplus.modules.sync.repository.EncounterRepository;
-import org.lamisplus.modules.sync.repository.FormDataRepository;
-import org.lamisplus.modules.sync.repository.PatientRepository;
-import org.lamisplus.modules.sync.repository.VisitRepository;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.lamisplus.modules.sync.domain.dto.*;
+import org.lamisplus.modules.sync.domain.entity.*;
+import org.lamisplus.modules.sync.domain.mapper.*;
+import org.lamisplus.modules.sync.repository.*;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,74 +20,80 @@ public class ObjectDeserializer {
     private final VisitRepository visitRepository;
     private final EncounterRepository encounterRepository;
     private final FormDataRepository formDataRepository;
+    private final AppointmentRepository appointmentRepository;
     private final PatientMapper patientMapper;
     private final VisitMapper visitMapper;
     private final EncounterMapper encounterMapper;
     private final FormDataMapper formDataMapper;
+    private final AppointmentMapper appointmentMapper;
 
-    public void deserialize(String data, String table) {
+    public void deserialize(byte[] bytes, String table) {
+        String data = new String(bytes, StandardCharsets.UTF_8);
+        System.out.println("Data in string: "+data);
+        
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            JSONObject object = new JSONObject();
-            JSONArray jsonArray = new JSONArray(data);
             switch (table) {
-                case "patient" :
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        object = jsonArray.optJSONObject(i);
-                        PatientDTO patientDTO = objectMapper.readValue(object.toString(), PatientDTO.class);
+                case "patient":
+                    List<PatientDTO> patientDTOS = objectMapper.readValue(data, new TypeReference<List<PatientDTO>>() {});
+                    patientDTOS.forEach(patientDTO -> {
                         Patient patient = patientMapper.toPatient(patientDTO);
                         patientRepository.findByUuid(patient.getUuid()).ifPresent(value -> patient.setId(value.getId()));
-                        System.out.println("patient: "+ patient.toString());
                         patientRepository.save(patient);
-                    }
+                    });
                     break;
-                case "visit" :
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        object = jsonArray.optJSONObject(i);
-                        VisitDTO visitDTO = objectMapper.readValue(object.toString(), VisitDTO.class);
+                case "visit":
+                    List<VisitDTO> visitDTOS = objectMapper.readValue(data, new TypeReference<List<VisitDTO>>() {});
+                    visitDTOS.forEach(visitDTO -> {
                         Visit visit = visitMapper.toVisit(visitDTO);
-                        Optional<Patient> patient = patientRepository.findByUuid(visitDTO.getPatientUuid());
-                        if(patient.isPresent()) {
-                            visit.setPatientId(patient.get().getId());
-                            patientRepository.findByUuid(visitDTO.getPatientUuid()).ifPresent(value -> visit.setPatientId(value.getId()));
-                            visitRepository.save(visit);
-                        }
-                    }
+                        patientRepository.findByUuid(visitDTO.getPatientUuid()).ifPresent(value -> visit.setPatientId(value.getId()));
+                        visitRepository.findByUuid(visit.getUuid()).ifPresent(value->visit.setId(value.getId()));
+                        visitRepository.save(visit);
+                    });
+
                     break;
-                case "encounter" :
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        object = jsonArray.optJSONObject(i);
-                        EncounterDTO encounterDTO = objectMapper.readValue(object.toString(), EncounterDTO.class);
+                case "encounter":
+                    List<EncounterDTO> encounterDTOS = objectMapper.readValue(data, new TypeReference<List<EncounterDTO>>() {});
+                    encounterDTOS.forEach(encounterDTO -> {
                         Encounter encounter = encounterMapper.toEncounter(encounterDTO);
-                        Optional<Patient> patient = patientRepository.findByUuid(encounterDTO.getPatientUuid());
-                        if(patient.isPresent()) {
-                            encounter.setPatientId(patient.get().getId());
-                            Optional<Visit> visit = visitRepository.findByUuid(encounterDTO.getVisitUuid());
-                            if(visit.isPresent()) {
-                                encounter.setVisitId(visit.get().getId());
-                                encounterRepository.findByUuid(encounterDTO.getUuid()).ifPresent(value -> encounter.setId(value.getId()));
-                                encounterRepository.save(encounter);
-                            }
-                        }
-                    }
+                        visitRepository.findByUuid(encounterDTO.getVisitUuid())
+                                .ifPresent(value -> encounter.setVisitId(value.getId()));
+                        patientRepository.findByUuid(encounterDTO.getPatientUuid())
+                                .ifPresent(value -> encounter.setPatientId(value.getId()));
+                        encounterRepository.findByUuid(encounter.getUuid())
+                                .ifPresent(value-> encounter.setId(value.getId()));
+                        encounterRepository.save(encounter);
+                    });
+
                     break;
-                case "form_data" :
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        object = jsonArray.optJSONObject(i);
-                        FormDataDTO formDataDTO = objectMapper.readValue(object.toString(), FormDataDTO.class);
+                case "form_data":
+                    List<FormDataDTO> formDataDTOS = objectMapper.readValue(data, new TypeReference<List<FormDataDTO>>() {});
+                    formDataDTOS.forEach(formDataDTO -> {
                         FormData formData = formDataMapper.toFormData(formDataDTO);
-                        Optional<Encounter> encounter = encounterRepository.findByUuid(formDataDTO.getEncounterUuid());
-                        if(encounter.isPresent()) {
-                            formData.setEncounterId(encounter.get().getId());
-                            formDataRepository.findByUuid(formDataDTO.getUuid()).ifPresent(value -> formData.setId(value.getId()));
-                            formDataRepository.save(formData);
-                        }
-                    }
+                        encounterRepository.findByUuid(formDataDTO.getEncounterUuid()).ifPresent(value -> formData.setEncounterId(value.getId()));
+                        formDataRepository.findByUuid(formData.getUuid()).ifPresent(value->{
+                            formData.setId(value.getId());
+                        });
+                        formDataRepository.save(formData);
+                    });
+                    break;
+                case "appointment":
+                    System.out.println("saving appointment");
+                    List<AppointmentDTO> appointmentDTOS = objectMapper.readValue(data, new TypeReference<List<AppointmentDTO>>() {});
+                    appointmentDTOS.forEach(appointmentDTO -> {
+                        Appointment appointment = appointmentMapper.toAppointment(appointmentDTO);
+                        visitRepository.findByUuid(appointmentDTO.getVisitUuid())
+                                .ifPresent(value -> appointment.setVisitId(value.getId()));
+                        patientRepository.findByUuid(appointmentDTO.getPatientUuid())
+                                .ifPresent(value -> appointment.setPatientId(value.getId()));
+                        encounterRepository.findByUuid(appointment.getUuid())
+                                .ifPresent(value-> appointment.setId(value.getId()));
+                        appointmentRepository.save(appointment);
+                    });
                     break;
                 default:
             }
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             exception.printStackTrace();
             throw new RuntimeException(exception);
         }
