@@ -28,8 +28,7 @@ public class LocalDateConverter implements AttributeConverter<LocalDate, Date> {
         }
         // Converting 'dd-MM-yyyy' SQL date to LocalDate
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate localDate = LocalDate.parse(formatter.format(databaseValue.toLocalDate()), formatter);
-        return localDate;
+        return LocalDate.parse(formatter.format(databaseValue.toLocalDate()), formatter);
     }
 
 
@@ -38,8 +37,7 @@ public class LocalDateConverter implements AttributeConverter<LocalDate, Date> {
     }
 
 
-
-    public java.util.Date convertToTimeStamp (LocalDate date, LocalTime time) {
+    public java.util.Date convertToTimeStamp(LocalDate date, LocalTime time) {
         LocalDateTime timestamp = LocalDateTime.of(date, time);
         return java.util.Date
                 .from(timestamp.atZone(ZoneId.systemDefault())
