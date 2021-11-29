@@ -3,10 +3,13 @@ package org.lamisplus.modules.sync.controller;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lamisplus.modules.sync.domain.entity.SyncQueue;
+import org.lamisplus.modules.sync.domain.entity.Tables;
 import org.lamisplus.modules.sync.service.QueueManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @Slf4j
@@ -19,11 +22,11 @@ public class ServerController {
     @PostMapping("/{table}/{facilityId}")
     @CircuitBreaker(name = "Sync", fallbackMethod = "getReceiverDefault")
     public ResponseEntity<String> receiver(
-            @RequestBody String data,
+            @RequestBody byte[] data,
             @PathVariable String table,
-            @PathVariable Long facilityId) throws IOException {
-        queueManager.queue(data, table, facilityId);
-        return ResponseEntity.ok("Ok");
+            @PathVariable Long facilityId) throws Exception {
+        SyncQueue syncQueue = queueManager.queue(data, Tables.valueOf(table), facilityId);
+        return ResponseEntity.ok(syncQueue.getTableName()+ " was save successfully on the server");
     }
 
     public ResponseEntity<String> getReceiverDefault(Exception e) {
