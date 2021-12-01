@@ -3,6 +3,7 @@ package org.lamisplus.modules.sync.controller;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.sync.domain.entity.SyncHistory;
@@ -11,16 +12,14 @@ import org.lamisplus.modules.sync.service.ObjectSerializer;
 import org.lamisplus.modules.sync.service.SyncHistoryService;
 import org.lamisplus.modules.sync.utility.HttpConnectionManager;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -28,44 +27,49 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/sync")
 public class ClientController {
-
-    private final SyncHistoryService syncHistoryService;
+    private static final String UPLOAD = "upload";
     private final ObjectSerializer objectSerializer;
     private final ObjectMapper mapper = new ObjectMapper();
-
-    @Value("${lamis.api.sync}")
-    private String serverUrl;
+    private final SyncHistoryService syncHistoryService;
+    @Value("${server.url}")
+    private String SERVER_URL;
 
     @GetMapping("/{facilityId}")
-    public ResponseEntity<String> sender(@PathVariable("facilityId") Long facilityId) throws Exception  {
+    @CircuitBreaker(name = UPLOAD, fallbackMethod = "getDefaultMessage")
+    public ResponseEntity<String> sender(@PathVariable("facilityId") Long facilityId) throws Exception {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
-        try {
-            LocalDateTime localDateTime = LocalDateTime.now();
-            for (Tables table : Tables.values()) {
-                SyncHistory syncHistory = syncHistoryService.getSyncHistory(table.name(), facilityId);
-                List<Object> objects = objectSerializer.serialize(table.name(), facilityId, syncHistory.getDateLastSync());
-                // Convert object to JSON string and post to the server url
+        System.out.println("table values: => "+ Arrays.toString(Tables.values()));
+        for (Tables table : Tables.values()) {
+            SyncHistory syncHistory = syncHistoryService.getSyncHistory(table.name(), facilityId);
+            LocalDateTime dateLastSync = syncHistory.getDateLastSync();
+            log.info("last date sync 1 {}", dateLastSync);
+            List<?> serializeTableRecords = objectSerializer.serialize(table, facilityId, dateLastSync);
+            if(!serializeTableRecords.isEmpty()){
+            Object serializeObjet = serializeTableRecords.get(0);
+            log.info("serialize first  object  {} ", serializeObjet.toString());
+            if (!serializeObjet.toString().contains("No table records was retrieved for server sync")) {
                 String pathVariable = table.name().concat("/").concat(Long.toString(facilityId));
-                // Convert object to JSON string and post to the server url
-                //String response = new HttpConnectionManager().post(mapper.writeValueAsString(objects), "http://localhost:8080/api/sync/" + pathVariable);
-
-                // Convert object to byte array and post to the server url
-                String response = new HttpConnectionManager().post(mapper.writeValueAsBytes(objects),
-                        serverUrl.concat(pathVariable));
-                System.out.println("Response from server: "+response);
-
-                //Save time this table was synced to the server successfully
+                String url = SERVER_URL.concat(pathVariable);
+                String response = new HttpConnectionManager().post(mapper.writeValueAsBytes(serializeTableRecords), url);
+                log.info("Done : {}", response);
                 syncHistory.setTableName(table.name());
                 syncHistory.setOrganisationUnitId(facilityId);
-                syncHistory.setDateLastSync(localDateTime);
+                syncHistory.setDateLastSync(LocalDateTime.now());
                 syncHistoryService.save(syncHistory);
             }
-            return ResponseEntity.ok("Successful");
-        } catch (IOException e) {
-            e.printStackTrace();
+            }
         }
-        return ResponseEntity.ok("Fail");
+        return ResponseEntity.ok("Successful");
+
+    }
+
+    public ResponseEntity<String> getDefaultMessage(Exception exception) {
+        String message = exception.getMessage();
+        if (message.contains("Failed to connect")) {
+            message = "server is down kindly try again later";
+        }
+        return ResponseEntity.internalServerError().body(message);
+
     }
 }
