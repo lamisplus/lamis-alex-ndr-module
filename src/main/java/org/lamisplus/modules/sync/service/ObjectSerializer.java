@@ -34,8 +34,8 @@ public class ObjectSerializer {
         List<Object> arrayList = new ArrayList<Object>();
         switch (table) {
             case "patient":
-                List<Patient> patientList =  clientRepository.findOrderedByNumberLimitedTo(5);
-                //List<Patient> patientList = patientRepository.findAll();
+                //List<Patient> patientList =  clientRepository.findOrderedByNumberLimitedTo(5);
+                List<Patient> patientList = patientRepository.findAll();
                 patientList.forEach(patient -> {
                     PatientDTO patientDTO = patientMapper.toPatientDTO(patient);
                     arrayList.add(patientDTO);
