@@ -9,7 +9,9 @@ import org.lamisplus.modules.sync.domain.dto.*;
 import org.lamisplus.modules.sync.domain.entity.*;
 import org.lamisplus.modules.sync.domain.mapper.*;
 import org.lamisplus.modules.sync.repository.*;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
@@ -31,28 +33,32 @@ public class ObjectDeserializer {
     private final FormDataMapper formDataMapper;
     private final AppointmentMapper appointmentMapper;
 
-    public List<?> deserialize(byte[] bytes, Tables table) throws Exception {
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+    public List<?> deserialize(byte[] bytes, String table) throws Exception {
         String data = new String(bytes, StandardCharsets.UTF_8);
         log.info("Data in string:  {}", data);
         ObjectMapper objectMapper = new ObjectMapper();
-        if (table.name().equals("patient")) {
-            log.info("Saving " + table.name() + " on Server");
+        if (table.equals("patient")) {
+            log.info("Saving " + table + " on Server");
             return processAndSavePatientsOnServer(data, objectMapper);
         }
-        if (table.name().equals("visit")) {
-            log.info("Saving " + table.name() + " on Server");
+        if (table.equals("visit")) {
+            log.info("Saving " + table + " on Server");
             return processAndSaveVisitsOnServer(data, objectMapper);
         }
-        if (table.name().equals("encounter")) {
-            log.info("Saving " + table.name() + " on Server");
+        if (table.equals("encounter")) {
+            log.info("Saving " + table + " on Server");
             return processAndSaveEncountersOnServer(data, objectMapper);
         }
-        if (table.name().equals("form_data")) {
-            log.info("Saving " + table.name() + " on Server");
+        if (table.equals("form_data")) {
+            log.info("Saving " + table + " on Server");
             return processAndSaveFormDatasOnServer(data, objectMapper);
         }
-        if (table.name().equals("appointment")) {
-            log.info("Saving " + table.name() + " on Server");
+        if (table.equals("appointment")) {
+            log.info("Saving " + table + " on Server");
             return processAndSaveAppointmentsOnServer(data, objectMapper);
         }
         List<String> msg = new LinkedList<>();
@@ -67,6 +73,7 @@ public class ObjectDeserializer {
         patientDTOS.forEach(patientDTO -> {
             Patient patient = patientMapper.toPatient(patientDTO);
             patientRepository.findByUuid(patient.getUuid()).ifPresent(value -> patient.setId(value.getId()));
+            System.out.println();
             patients.add(patientRepository.save(patient));
         });
         log.info("number of patients save on server => : {}", patients.size());

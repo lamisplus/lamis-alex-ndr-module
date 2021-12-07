@@ -22,23 +22,25 @@ public class QueueManager {
     private final ObjectDeserializer objectDeserializer;
     private final SyncQueueRepository syncQueueRepository;
 
-    public SyncQueue queue(byte[] bytes, Tables table, Long facilityId) throws Exception {
+    public SyncQueue queue(byte[] bytes, String table, Long facilityId) throws Exception {
+        System.out.println("I am in the server");
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HHmmss.ms");
-        String folder = ("sync/").concat(Long.toString(facilityId).concat("/")).concat(table.name()).concat("/");
+        String folder = ("sync/").concat(Long.toString(facilityId).concat("/")).concat(table).concat("/");
         String fileName = dateFormat.format(date) + "_" + timeFormat.format(date) + ".json";
         File file = new File(folder.concat(fileName));
 
         //FileUtils.writeStringToFile(file, data, Charset.defaultCharset());
         FileUtils.writeByteArrayToFile(file, bytes);
+        System.out.println("I am close deserialize the server");
         List<?> deserialize = objectDeserializer.deserialize(bytes, table);
         Object result = deserialize.get(0);
         SyncQueue syncQueue = new SyncQueue();
         if(!result.toString().contains("Nothing was saved on the server")){
             syncQueue.setFileName(fileName);
             syncQueue.setOrganisationUnitId(facilityId);
-            syncQueue.setTableName(table.name());
+            syncQueue.setTableName(table);
             syncQueue.setDateCreated(LocalDateTime.now());
             syncQueue.setProcessed(0);
             syncQueue = syncQueueRepository.save(syncQueue);
@@ -49,7 +51,7 @@ public class QueueManager {
         return syncQueue;
     }
 
-    public void process(byte[] bytes, Tables table) throws Exception {
+    public void process(byte[] bytes, String table) throws Exception {
         objectDeserializer.deserialize(bytes, table);
     }
 }

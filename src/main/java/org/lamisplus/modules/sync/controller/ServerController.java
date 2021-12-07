@@ -9,24 +9,21 @@ import org.lamisplus.modules.sync.service.QueueManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/sync")
+@RequestMapping("api/sync")
 public class ServerController {
     private final QueueManager queueManager;
 
     @PostMapping("/{table}/{facilityId}")
-    @CircuitBreaker(name = "Sync", fallbackMethod = "getReceiverDefault")
+    @CircuitBreaker(name = "server2", fallbackMethod = "getReceiverDefault")
     public ResponseEntity<String> receiver(
             @RequestBody byte[] data,
             @PathVariable String table,
             @PathVariable Long facilityId) throws Exception {
-        SyncQueue syncQueue = queueManager.queue(data, Tables.valueOf(table), facilityId);
-        return ResponseEntity.ok(syncQueue.getTableName()+ " was save successfully on the server");
+        SyncQueue syncQueue = queueManager.queue(data, table, facilityId);
+        return ResponseEntity.ok(syncQueue.getTableName() + " was save successfully on the server");
     }
 
     public ResponseEntity<String> getReceiverDefault(Exception e) {

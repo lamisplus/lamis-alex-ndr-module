@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class PatientDTO {
 
     private String uuid;

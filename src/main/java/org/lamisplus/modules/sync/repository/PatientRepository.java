@@ -23,4 +23,5 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
             " date_created >=:dateLastSync",
             nativeQuery = true)
     List<Patient> getPatientsDueForServerUpload(@Param("dateLastSync") LocalDateTime dateLastSync);
+
 }
