@@ -45,13 +45,13 @@ resilience4j.thread-pool-bulkhead:
       queueCapacity: 12
 
 server:
-  port: 8080
-  url: http://137.135.105.145:8081/api/sync/
+  port: 8081
+  url: http://localhost:8081/api/sync/
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     password: lamis
-    url: jdbc:postgresql://localhost:5433/ccrhs-lamisplus
+    url: jdbc:postgresql://localhost:5433/ccrhs-lamisplus-server
     username: postgres
   jpa:
     hibernate:

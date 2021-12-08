@@ -6,6 +6,8 @@ import org.apache.commons.io.FileUtils;
 import org.lamisplus.modules.sync.domain.entity.SyncQueue;
 import org.lamisplus.modules.sync.domain.entity.Tables;
 import org.lamisplus.modules.sync.repository.SyncQueueRepository;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -30,28 +32,29 @@ public class QueueManager {
         String folder = ("sync/").concat(Long.toString(facilityId).concat("/")).concat(table).concat("/");
         String fileName = dateFormat.format(date) + "_" + timeFormat.format(date) + ".json";
         File file = new File(folder.concat(fileName));
-
-        //FileUtils.writeStringToFile(file, data, Charset.defaultCharset());
         FileUtils.writeByteArrayToFile(file, bytes);
-        System.out.println("I am close deserialize the server");
-        List<?> deserialize = objectDeserializer.deserialize(bytes, table);
-        Object result = deserialize.get(0);
         SyncQueue syncQueue = new SyncQueue();
-        if(!result.toString().contains("Nothing was saved on the server")){
-            syncQueue.setFileName(fileName);
-            syncQueue.setOrganisationUnitId(facilityId);
-            syncQueue.setTableName(table);
-            syncQueue.setDateCreated(LocalDateTime.now());
-            syncQueue.setProcessed(0);
-            syncQueue = syncQueueRepository.save(syncQueue);
-        }
-        if(!syncQueue.getTableName().isEmpty()){
-          FileUtils.delete(file);
-        }
+        syncQueue.setFileName(fileName);
+        syncQueue.setOrganisationUnitId(facilityId);
+        syncQueue.setTableName(table);
+        syncQueue.setDateCreated(LocalDateTime.now());
+        syncQueue.setProcessed(0);
+        syncQueue = syncQueueRepository.save(syncQueue);
         return syncQueue;
     }
 
-    public void process(byte[] bytes, String table) throws Exception {
-        objectDeserializer.deserialize(bytes, table);
+
+    @Scheduled(fixedRate = 1000)
+    public void process() throws Exception {
+        List<SyncQueue> filesNotProcessed = syncQueueRepository.getAllByProcessed(0);
+        log.info("available for processing are : {}", filesNotProcessed.size());
+        filesNotProcessed
+                .forEach(syncQueue -> {
+                    String folder = ("sync/").concat(Long.toString(syncQueue.getOrganisationUnitId())
+                            .concat("/")).concat(syncQueue.getTableName()).concat("/");
+                    File file = new File(folder.concat(syncQueue.getFileName()));
+                    log.info("name of files : {}", file);
+                    //save this file in the database
+                });
     }
 }
