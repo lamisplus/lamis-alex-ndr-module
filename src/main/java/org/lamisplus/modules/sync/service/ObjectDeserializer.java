@@ -39,7 +39,6 @@ public class ObjectDeserializer {
     }
     public List<?> deserialize(byte[] bytes, String table) throws Exception {
         String data = new String(bytes, StandardCharsets.UTF_8);
-        log.info("Data in string:  {}", data);
         ObjectMapper objectMapper = new ObjectMapper();
         if (table.equals("patient")) {
             log.info("Saving " + table + " on Server");

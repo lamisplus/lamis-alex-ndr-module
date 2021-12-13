@@ -1,20 +1,25 @@
 package org.lamisplus.modules.sync.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.ByteStreams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.lamisplus.modules.sync.domain.dto.PatientDTO;
+import org.lamisplus.modules.sync.domain.dto.VisitDTO;
 import org.lamisplus.modules.sync.domain.entity.SyncQueue;
-import org.lamisplus.modules.sync.domain.entity.Tables;
 import org.lamisplus.modules.sync.repository.SyncQueueRepository;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.io.*;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -44,17 +49,29 @@ public class QueueManager {
     }
 
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedDelay = 300000)
     public void process() throws Exception {
         List<SyncQueue> filesNotProcessed = syncQueueRepository.getAllByProcessed(0);
-        log.info("available for processing are : {}", filesNotProcessed.size());
+        log.info("available file for processing are : {}", filesNotProcessed.size());
         filesNotProcessed
                 .forEach(syncQueue -> {
                     String folder = ("sync/").concat(Long.toString(syncQueue.getOrganisationUnitId())
                             .concat("/")).concat(syncQueue.getTableName()).concat("/");
-                    File file = new File(folder.concat(syncQueue.getFileName()));
-                    log.info("name of files : {}", file);
-                    //save this file in the database
+                    File file = FileUtils.getFile(folder, syncQueue.getFileName());
+                    try {
+                        InputStream targetStream = new FileInputStream(file);
+                        byte[] bytes = ByteStreams.toByteArray(Objects.requireNonNull(targetStream));
+                        List<?> list = objectDeserializer.deserialize(bytes, syncQueue.getTableName());
+                        if(!list.isEmpty()){
+                            syncQueue.setProcessed(1);
+                            syncQueueRepository.save(syncQueue);
+                            FileUtils.deleteDirectory(file);
+                            log.info("deleting file : {}", file.getName());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                 });
     }
 }
