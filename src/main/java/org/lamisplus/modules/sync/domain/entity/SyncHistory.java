@@ -31,5 +31,9 @@ public class SyncHistory implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime dateLastSync;
 
+    @Transient
+    private String facilityName;
 
+    @Transient
+    private String status;
 }

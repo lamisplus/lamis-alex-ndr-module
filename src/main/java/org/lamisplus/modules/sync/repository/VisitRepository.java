@@ -1,7 +1,5 @@
 package org.lamisplus.modules.sync.repository;
 
-import org.lamisplus.modules.sync.domain.entity.Appointment;
-import org.lamisplus.modules.sync.domain.entity.FormData;
 import org.lamisplus.modules.sync.domain.entity.Visit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,10 +17,7 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
     @Query(value = "SELECT * FROM visit WHERE uuid is NULL", nativeQuery = true)
     List<Visit> findNullUuid();
 
-    @Query(value = "select * from visit where " +
-            "date_modified >=:dateLastSync or" +
-            " date_created >=:dateLastSync",
-            nativeQuery = true)
+    @Query(value = "select * from visit where date_modified >=:dateLastSync or date_created >=:dateLastSync", nativeQuery = true)
     List<Visit> getVisitsDueForServerUpload(@Param("dateLastSync") LocalDateTime dateLastSync);
 
 

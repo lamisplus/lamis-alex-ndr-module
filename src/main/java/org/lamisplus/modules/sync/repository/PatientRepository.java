@@ -18,9 +18,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     @Query(value = "SELECT * FROM patient WHERE uuid is NULL", nativeQuery = true)
     List<Patient> findNullUuid();
 
-    @Query(value = "select * from patient where " +
-            "date_modified >=:dateLastSync or" +
-            " date_created >=:dateLastSync",
-            nativeQuery = true)
+    @Query(value = "select * from patient where date_modified >=:dateLastSync or date_created >=:dateLastSync", nativeQuery = true)
     List<Patient> getPatientsDueForServerUpload(@Param("dateLastSync") LocalDateTime dateLastSync);
 }

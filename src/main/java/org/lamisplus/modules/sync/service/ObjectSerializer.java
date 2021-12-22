@@ -30,7 +30,6 @@ public class ObjectSerializer {
     private final ClientRepository clientRepository;
     private final UuidService uuidService;
 
-
     public List<?> serialize(Tables table, long facilityId, LocalDateTime dateLastSync) {
 
         if (table.name().equals("patient")) {
