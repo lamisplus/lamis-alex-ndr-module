@@ -37,6 +37,7 @@ public class ObjectSerializer {
             List<Patient> patientList = new LinkedList<>();
             if (dateLastSync == null) {
                 patientList = patientRepository.findAll();
+                System.out.println(patientList);
             } else {
                 patientList = patientRepository.getPatientsDueForServerUpload(dateLastSync);
             }

@@ -1,31 +1,11 @@
 package org.lamisplus.modules.sync.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lamisplus.modules.sync.domain.dto.EncounterDTO;
-import org.lamisplus.modules.sync.domain.entity.Encounter;
-import org.lamisplus.modules.sync.domain.entity.Patient;
-import org.lamisplus.modules.sync.domain.entity.Visit;
 import org.lamisplus.modules.sync.domain.mapper.EncounterMapper;
 import org.lamisplus.modules.sync.domain.mapper.FormDataMapper;
 import org.lamisplus.modules.sync.domain.mapper.PatientMapper;
 import org.lamisplus.modules.sync.domain.mapper.VisitMapper;
-import org.lamisplus.modules.sync.repository.ClientRepository;
-import org.lamisplus.modules.sync.repository.EncounterRepository;
-import org.lamisplus.modules.sync.repository.FormDataRepository;
-import org.lamisplus.modules.sync.repository.PatientRepository;
-import org.lamisplus.modules.sync.repository.VisitRepository;
+import org.lamisplus.modules.sync.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;

@@ -51,6 +51,7 @@ public class Patient extends JsonBEntity implements Serializable {
     @ToString.Exclude
     private String createdBy;
 
+
     @CreatedDate
     @Column(name = "date_created", nullable = false, updatable = false)
     @JsonIgnore

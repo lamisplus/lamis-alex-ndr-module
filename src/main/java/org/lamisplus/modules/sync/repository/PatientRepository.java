@@ -20,4 +20,5 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     @Query(value = "select * from patient where date_modified >=:dateLastSync or date_created >=:dateLastSync", nativeQuery = true)
     List<Patient> getPatientsDueForServerUpload(@Param("dateLastSync") LocalDateTime dateLastSync);
+
 }

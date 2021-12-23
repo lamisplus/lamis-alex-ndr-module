@@ -1,8 +1,5 @@
 package org.lamisplus.modules.sync.service;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lamisplus.modules.sync.domain.mapper.EncounterMapper;
 import org.lamisplus.modules.sync.domain.mapper.FormDataMapper;
