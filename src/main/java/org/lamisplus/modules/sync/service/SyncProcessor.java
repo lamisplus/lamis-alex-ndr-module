@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.sync.domain.entity.SyncQueue;
 import org.lamisplus.modules.sync.repository.SyncQueueRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -20,6 +21,7 @@ public class SyncProcessor {
     private static final Set<Long> runningFacilities = new HashSet<>();
     private final SyncQueueRepository syncQueueRepository;
 
+    @Scheduled(fixedDelay = 5)
     public void process() {
         List<SyncQueue> syncQueueList = syncQueueRepository.findDistinctByProcessedEquals(0);
         synchronized (runningFacilities) {
