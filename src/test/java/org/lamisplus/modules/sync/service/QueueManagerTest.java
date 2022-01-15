@@ -12,8 +12,10 @@ class QueueManagerTest {
     @MockBean
     private ObjectDeserializer objectDeserializer;
 
+
     @Autowired
     private QueueManager queueManager;
+
 
 /*
     @Test

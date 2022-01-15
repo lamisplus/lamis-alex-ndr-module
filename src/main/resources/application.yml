@@ -50,11 +50,19 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    password: lamis
-    url: jdbc:postgresql://localhost:5433/ccrhs-lamisplus-server
+    url: jdbc:postgresql://localhost:5432/lamisplus_cch
+    password: admin!123
     username: postgres
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#      dialect: org.hibernate.dialect.PostgreSQL9Dialect
+#      show_sql: true
   jpa:
+    database: POSTGRESQL
+    show-sql: true
+    open-in-view: false
     hibernate:
       ddl-auto: update
-      dialect: org.hibernate.dialect.PostgreSQL9Dialect
-      show_sql: true
+    properties:
+      hibernate.enable_lazy_load_no_trans: true
