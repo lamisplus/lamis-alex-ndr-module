@@ -1,5 +1,6 @@
 package org.lamisplus.modules.sync.utility;
 
+import com.google.common.hash.Hashing;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -25,12 +26,14 @@ public class HttpConnectionManager {
 
     }
 
-    public String post(byte[] data, String url) throws IOException {
-        RequestBody body = RequestBody.create(data, MediaType.parse("application/json; charset=utf-8"));
+    public String post(byte[] bytes, String url) throws IOException {
+        RequestBody body = RequestBody.create(bytes, MediaType.parse("application/json; charset=utf-8"));
+        String hash = Hashing.sha256().hashBytes(bytes).toString();
 
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("User-Agent", "OkHttp Bot")
+                .addHeader("Hash-Value", hash)
                 .post(body)
                 .build();
 

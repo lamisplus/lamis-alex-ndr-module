@@ -10,7 +10,8 @@ import java.util.List;
 
 @Repository
 public interface SyncQueueRepository extends JpaRepository<SyncQueue, Long> {
-    @Query(value = "select * from sync_queue sq where  sq.organisation_unit_id in(select distinct ou.organisation_unit_id from sync_queue ou where ou.processed = 0)", nativeQuery = true)
+
+    @Query(value = "select * from sync_queue sq where  sq.organisation_unit_id in (select distinct ou.organisation_unit_id from sync_queue ou where ou.processed = 0)", nativeQuery = true)
     List<SyncQueue> getAllSyncQueueByFacilitiesNotProcessed();
 
     @Query(value = "select * from sync_queue sq where sq.organisation_unit_id =: facilityId and sq.processed = 0 order by sq.date_created desc", nativeQuery = true)

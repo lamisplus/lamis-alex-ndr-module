@@ -1,5 +1,6 @@
 package org.lamisplus.modules.sync.service;
 
+import com.google.common.hash.Hashing;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.lamisplus.modules.sync.domain.entity.SyncQueue;
@@ -21,7 +22,7 @@ public class SyncQueueService {
         syncQueueRepository.save(syncQueue);
     }
 
-    public SyncQueue save(byte[] bytes, String table, Long facilityId) throws Exception {
+    public SyncQueue save(byte[] bytes, String hash, String table, Long facilityId) throws Exception {
         System.out.println("I am in the server");
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
@@ -35,7 +36,11 @@ public class SyncQueueService {
         syncQueue.setOrganisationUnitId(facilityId);
         syncQueue.setTableName(table);
         syncQueue.setDateCreated(LocalDateTime.now());
-        syncQueue.setProcessed(0);
+
+        // Verify the hash value of the byte, if the do not values match set processed to -1
+        if (!hash.equals(Hashing.sha256().hashBytes(bytes).toString())) syncQueue.setProcessed(-1);
+        else syncQueue.setProcessed(0);
+
         syncQueue = syncQueueRepository.save(syncQueue);
         return syncQueue;
     }

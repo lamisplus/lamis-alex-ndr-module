@@ -11,7 +11,7 @@ import java.util.List;
 public interface OrganisationUnitRepository extends JpaRepository<OrganisationUnit, Long> {
     List<OrganisationUnit> findAllByOrganisationUnitLevelId(Long id);
 
-    @Query(value = "SELECT * FROM organisation_unit org WHERE  org.id IN(SELECT DISTINCT ps.organisation_unit_id FROM patient ps)", nativeQuery = true)
+    @Query(value = "select * from organisation_unit org where  org.id in (select distinct ps.organisation_unit_id from patient ps)", nativeQuery = true)
     List<OrganisationUnit> findOrganisationUnitWithRecords();
 
 }

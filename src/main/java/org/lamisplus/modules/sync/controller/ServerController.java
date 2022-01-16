@@ -1,5 +1,6 @@
 package org.lamisplus.modules.sync.controller;
 
+import com.google.common.hash.Hashing;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +19,12 @@ public class ServerController {
     @PostMapping("/{table}/{facilityId}")
     @CircuitBreaker(name = "server2", fallbackMethod = "getReceiverDefault")
     public ResponseEntity<String> receiver(
-            @RequestBody byte[] data,
+            @RequestBody byte[] bytes,
+            @RequestHeader("Hash-Value") String hash,
             @PathVariable String table,
             @PathVariable Long facilityId) throws Exception {
-        SyncQueue syncQueue = syncQueueService.save(data, table, facilityId);
+
+        SyncQueue syncQueue = syncQueueService.save(bytes, hash, table, facilityId);
         return ResponseEntity.ok(syncQueue.getTableName() + " was save successfully on the server");
     }
 
