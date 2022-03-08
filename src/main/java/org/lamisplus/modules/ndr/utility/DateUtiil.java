@@ -1,16 +1,16 @@
-package org.lamisplus.modules.ndr.util;
+package org.lamisplus.modules.ndr.utility;
 
-import liquibase.datatype.DataTypeFactory;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
 
+@Component
 public class DateUtiil {
 
     public static XMLGregorianCalendar getXmlDate(Date date)

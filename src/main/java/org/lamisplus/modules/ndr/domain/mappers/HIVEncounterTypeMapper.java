@@ -35,6 +35,8 @@ public class HIVEncounterTypeMapper {
         ObjectMapper objectMapper = new ObjectMapper();
         HIVEncounterType hivEncounterType = new HIVEncounterType();
 
+        String ndrCode, date;
+
         List<FormData> formDataList = this.formDataRepository.findByEncounterId(encounter.getId());
         if(!formDataList.isEmpty()) {
             FormData formData = formDataList.get(formDataList.size() - 1);
@@ -42,8 +44,8 @@ public class HIVEncounterTypeMapper {
             System.out.println("....clinic:  "+clinic);
 
             try {
-                String date = String.valueOf(encounter.getDateEncounter());
-                if (!StringUtils.isBlank(date)) hivEncounterType.setVisitDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
+                date = String.valueOf(encounter.getDateEncounter());
+                if (!StringUtils.isEmpty(date)) hivEncounterType.setVisitDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
             } catch (DatatypeConfigurationException e) {
                 e.printStackTrace();
             }
@@ -51,9 +53,9 @@ public class HIVEncounterTypeMapper {
 
             // Getting patient date of birth to compute the age at date of encounter
             Optional<Patient> patient = patientRepository.findById(encounter.getPatientId());
-            JsonNode patientDetails = objectMapper.convertValue(patient.get().getDetails(), JsonNode.class);
+            JsonNode details = objectMapper.convertValue(patient.get().getDetails(), JsonNode.class);
 
-            LocalDate dob = LocalDate.parse(patientDetails.get("dob").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate dob = LocalDate.parse(details.get("dob").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             LocalDate dateVisit = encounter.getDateEncounter();
             Period diff = Period.between(dob, dateVisit);
             System.out.println(diff.getYears() + " years " + diff.getMonths() + " months " + diff.getDays() + " days");
@@ -62,14 +64,14 @@ public class HIVEncounterTypeMapper {
             if(Period.between(dob, dateVisit).getYears() <= PEDIATRIC_AGE) {
                 hivEncounterType.setChildHeight(clinic.path("data").path("height").asInt());
             }
-            String code = ndrCodesetService.getCode("WHO_STAGE", clinic.path("data").path("clinic_stage").path("display").asText());
-            if(code != null) hivEncounterType.setWHOClinicalStage(code);
+            ndrCode = ndrCodesetService.getCode("WHO_STAGE", clinic.path("data").path("clinic_stage").path("display").asText());
+            if (!StringUtils.isEmpty(ndrCode)) hivEncounterType.setWHOClinicalStage(ndrCode);
 
-            code = ndrCodesetService.getCode("FUNCTIONAL_STATUS", clinic.path("data").path("functional_status").path("display").asText());
-            if(code != null) hivEncounterType.setFunctionalStatus(code);
-            code = ndrCodesetService.getCode("TB_STATUS", clinic.path("data").path("tb_status").path("display").asText());
+            ndrCode = ndrCodesetService.getCode("FUNCTIONAL_STATUS", clinic.path("data").path("functional_status").path("display").asText());
+            if (!StringUtils.isEmpty(ndrCode)) hivEncounterType.setFunctionalStatus(ndrCode);
 
-            if(code != null) hivEncounterType.setTBStatus(code);
+            ndrCode = ndrCodesetService.getCode("TB_STATUS", clinic.path("data").path("tb_status").path("display").asText());
+            if (!StringUtils.isEmpty(ndrCode)) hivEncounterType.setTBStatus(ndrCode);
         }
         return hivEncounterType;
     }

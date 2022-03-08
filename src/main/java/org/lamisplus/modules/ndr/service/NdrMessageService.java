@@ -2,20 +2,18 @@ package org.lamisplus.modules.ndr.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.lamisplus.modules.base.domain.entity.OrganisationUnit;
 import org.lamisplus.modules.ndr.domain.dto.FileInfo;
-import org.lamisplus.modules.ndr.domain.dto.Facility;
-import org.lamisplus.modules.ndr.domain.dto.FacilityDTO;
+import org.lamisplus.modules.ndr.domain.dto.FacilityIdDTO;
 import org.lamisplus.modules.ndr.domain.dto.FileInfoDTO;
 import org.lamisplus.modules.ndr.domain.entity.NdrMessage;
 import org.lamisplus.modules.ndr.domain.mappers.MessageHeaderTypeMapper;
 import org.lamisplus.modules.ndr.domain.schema.Container;
 import org.lamisplus.modules.ndr.domain.schema.MessageHeaderType;
 import org.lamisplus.modules.ndr.repository.NdrMessageRepository;
-import org.lamisplus.modules.base.repository.OrganisationUnitRepository;
-import org.lamisplus.modules.base.repository.PatientRepository;
-import org.lamisplus.modules.ndr.domain.schema.Validator;
 
-import org.lamisplus.modules.ndr.util.NdrFileUtil;
+import org.lamisplus.modules.ndr.repository.OrganisationUnitNdrRepository;
+import org.lamisplus.modules.ndr.utility.NdrFileUtil;
 import org.springframework.stereotype.Service;
 
 import javax.xml.XMLConstants;
@@ -24,14 +22,9 @@ import javax.xml.bind.Marshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,22 +33,22 @@ import java.util.concurrent.Executors;
 @RequiredArgsConstructor
 public class NdrMessageService {
     private final NdrMessageRepository ndrMessageRepository;
-    private final OrganisationUnitRepository organisationUnitRepository;
     private final MessageHeaderTypeMapper messageHeaderTypeMapper;
+    private final OrganisationUnitNdrRepository organisationUnitNdrRepository;
     private final NdrFileUtil fileUtils;
 
     private final static ExecutorService executorService = Executors.newFixedThreadPool(50);
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public void generate(FacilityDTO facilityDTO) {
-        facilityDTO.getFacilities().forEach(facility -> {
-            String folder = ("transfer/temp/").concat(Long.toString(facility.getId())).concat("/");
+    public void generate(FacilityIdDTO facilityIdDTO) {
+        facilityIdDTO.getFacilityIds().forEach(id -> {
+            String folder = ("transfer/temp/").concat(Long.toString(id)).concat("/");
             fileUtils.makeDir(folder);
             if(!fileUtils.isLocked(folder)){
                 fileUtils.deleteFileWithExtension(folder, ".xml");
                 fileUtils.deleteFileWithExtension(folder, ".zip");
                 fileUtils.lockFolder(folder);
-                NdrThread processorThread = new NdrThread(facility);
+                NdrThread processorThread = new NdrThread(id);
 
                 executorService.execute(processorThread);
             }
@@ -65,19 +58,19 @@ public class NdrMessageService {
         }
     }
 
-    public void generate(Facility facility) {
+    public void generate(Long facilityId) {
         //It is important to set the date of last message generation to the time when the NDR message container
         //is retrieved from database, to ensure that next message generated on the database is not missed
         LocalDateTime localDateTime = LocalDateTime.now();
         // Generate ndr message file for this facility
-        List<NdrMessage> ndrMessageList = ndrMessageRepository.findByOrganisationUnitIdAndMarshalled(facility.getId(), false);
+        List<NdrMessage> ndrMessageList = ndrMessageRepository.findByOrganisationUnitIdAndMarshalled(facilityId, false);
         if(!ndrMessageList.isEmpty()) {
             ndrMessageList.forEach(ndrMessage -> {
                 generate(ndrMessage, localDateTime);
             });
         }
         // Zip generated ndr files for this facility
-        zipFolder(facility);
+        zipFolder(facilityId);
     }
 
     public void generate(NdrMessage ndrMessage, LocalDateTime localDateTime) {
@@ -136,18 +129,22 @@ public class NdrMessageService {
         return ndrMessageRepository.save(ndrMessage);
     }
 
-    private void zipFolder(Facility facility) {
-        String sourceFolder = ("transfer/temp/").concat(Long.toString(facility.getId())).concat("/");
-        String destinationFolder = "transfer/ndr/";
-        fileUtils.makeDir(destinationFolder);
+    private void zipFolder(Long facilityId) {
+        Optional<OrganisationUnit> organisationUnit = organisationUnitNdrRepository.findById(facilityId);
+        if(organisationUnit.isPresent()) {
+            String sourceFolder = ("transfer/temp/").concat(Long.toString(organisationUnit.get().getId())).concat("/");
+            String destinationFolder = "transfer/ndr/";
+            fileUtils.makeDir(destinationFolder);
 
-        long timestamp = new Date().getTime();
-        String fileName = facility.getName().concat("_").concat(String.valueOf(timestamp)).concat(".zip");
-        String outputZipFile = destinationFolder.concat(fileName);
+            long timestamp = new Date().getTime();
+            String fileName = organisationUnit.get().getName().concat("_").concat(String.valueOf(timestamp)).concat(".zip");
+            String outputZipFile = destinationFolder.concat(fileName);
 
-        fileUtils.deleteFileWithExtension(sourceFolder, ".ser");
-        fileUtils.zipDirectory(sourceFolder, outputZipFile);
-        fileUtils.unlockFolder(fileName);
+            fileUtils.deleteFileWithExtension(sourceFolder, ".ser");
+            fileUtils.zipDirectory(sourceFolder, outputZipFile);
+            fileUtils.unlockFolder(fileName);
+        }
+
     }
 
     public FileInfoDTO download() {
@@ -169,14 +166,14 @@ public class NdrMessageService {
     }
 
     public class NdrThread implements Runnable {
-        private Facility facility;
-        NdrThread(Facility facility) {
-            this.facility = facility;
+        private Long facilityId;
+        NdrThread(Long facilityId) {
+            this.facilityId = facilityId;
         }
 
         @Override
         public void run() {
-            generate(facility);
+            generate(facilityId);
         }
     }
 

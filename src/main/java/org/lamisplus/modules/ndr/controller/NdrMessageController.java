@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.base.domain.entity.OrganisationUnit;
-import org.lamisplus.modules.base.service.OrganisationUnitService;
-import org.lamisplus.modules.ndr.domain.dto.FacilityDTO;
+import org.lamisplus.modules.ndr.domain.dto.FacilityIdDTO;
 import org.lamisplus.modules.ndr.domain.dto.FileInfoDTO;
-import org.lamisplus.modules.ndr.scheduler.NdrMessageHandler;
+import org.lamisplus.modules.ndr.service.EncounterPostProcessor;
 import org.lamisplus.modules.ndr.service.NdrMessageService;
 import org.lamisplus.modules.ndr.service.OrganisationUnitNdrService;
 import org.springframework.http.MediaType;
@@ -19,10 +18,10 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/ndr_message")
+@RequestMapping("/api/ndr")
 public class NdrMessageController {
     private final NdrMessageService ndrMessageService;
-    private final NdrMessageHandler ndrMessageHandler;
+    private final EncounterPostProcessor encounterPostProcessor;
     private final OrganisationUnitNdrService organisationUnitService;
 
     //https://stackoverflow.com/questions/18920770/restful-webservice-spring-xml-in-stead-of-json/30201259
@@ -39,22 +38,21 @@ public class NdrMessageController {
     }
 
     @PostMapping("/generate")
-    public  ResponseEntity<String>  generate(@RequestBody FacilityDTO facilityDTO) {
-        System.out.println("Facilities to process: "+facilityDTO);
-        ndrMessageService.generate(facilityDTO);
+    public  ResponseEntity<String>  generate(@RequestBody FacilityIdDTO facilityIdDTO) {
+        System.out.println("Facilities to process: "+facilityIdDTO);
+        ndrMessageService.generate(facilityIdDTO);
         return ResponseEntity.ok("OK");
     }
 
-    @GetMapping("/preprocess")
+    @GetMapping("/process")
     public ResponseEntity<String> test() {
-        ndrMessageHandler.handle();
+        encounterPostProcessor.process();
         return ResponseEntity.ok("Successful");
     }
 
-
     @GetMapping("/facilities")
     public ResponseEntity<List<OrganisationUnit>> getAllOrganizationUnit() {
-        return ResponseEntity.ok(organisationUnitService.getAllOrganizationUnit());
+        return ResponseEntity.ok(organisationUnitService.findOrganisationUnitWithRecords());
     }
 
 }

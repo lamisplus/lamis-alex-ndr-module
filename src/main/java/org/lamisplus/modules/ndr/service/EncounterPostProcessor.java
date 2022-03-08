@@ -1,4 +1,4 @@
-package org.lamisplus.modules.ndr.scheduler;
+package org.lamisplus.modules.ndr.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,22 +8,20 @@ import org.lamisplus.modules.ndr.domain.entity.NdrMessage;
 import org.lamisplus.modules.ndr.domain.mappers.*;
 import org.lamisplus.modules.ndr.domain.schema.*;
 import org.lamisplus.modules.ndr.repository.*;
-import org.lamisplus.modules.ndr.service.NdrCodesetService;
 import org.lamisplus.modules.base.repository.PatientRepository;
 import org.lamisplus.modules.base.domain.entity.Patient;
 import org.lamisplus.modules.base.domain.entity.Encounter;
-import org.lamisplus.modules.ndr.service.NdrMessageService;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class NdrMessageHandler {
+public class EncounterPostProcessor {
     private static final String REGISTRATION_FORM_CODE = "bbc01821-ff3b-463d-842b-b90eab4bdacd";
     private final PatientRepository patientRepository;
     private final NdrMessageRepository ndrMessageRepository;
@@ -48,7 +46,9 @@ public class NdrMessageHandler {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public void handle() {
+    //repeat NDR message generation every 6 hours  "0 0 0/6 * * ?"
+    @Scheduled(cron="0 0/5 * * * ?")
+    public void process() {
         System.out.println("Generating NDR messages......");
 
         //List<Patient> patientList = only enrollment into HIV  and HTS services
@@ -144,7 +144,6 @@ public class NdrMessageHandler {
                         }
                     }
 
-/*
                     // Laboratory order and report data
                     if (formNdrSchema.getNdrSchema().equals("LaboratoryReportType")){
                         laboratoryReportType.set(this.laboratoryReportTypeMapper.map(encounter));
@@ -154,7 +153,6 @@ public class NdrMessageHandler {
                             conditionType.get().getLaboratoryReport().add(laboratoryReportType.get());
                         }
                     }
-*/
 
                     // Regimen dispensing data
                     if (formNdrSchema.getNdrSchema().equals("RegimenType")){
@@ -170,11 +168,10 @@ public class NdrMessageHandler {
                     if (formNdrSchema.getNdrSchema().equals("HIVTestingReportType")){
                         hivTestingReportType.set(this.hivTestingReportTypeMapper.map(encounter));
                         if (hivTestingReportType.get().getVisitID() != null) {
-
+                            individualReportType.get().getHIVTestingReport().add(hivTestingReportType.get());
                         }
                     }
 
-/*
                     // Index and contact tracing data
                     if (formNdrSchema.getNdrSchema().equals("PartnerNotificationType") && !partner.get()){
                         hivTestingReportType.get().getIndexNotificationServices().setPartner(this.partnerNotificationTypeMapper.map(encounter));
@@ -185,10 +182,12 @@ public class NdrMessageHandler {
                     // Recency testing data
                     if (formNdrSchema.getNdrSchema().equals("RecencyTestingType")){
                         hivTestingReportType.get().getHIVTestResult().setRecencyTesting(this.recencyTestingTypeMapper.map(encounter));
+                        //hivTestingReportType.get().getHIVTestResult().setTestResult(testResultType);
                     }
-*/
                 });
-            });  // end of patient encounters processing
+            });
+
+            //end of patient encounters processing
 
             // Iterate the condition type in the individual report object and remove if current condition code i.e HIV exist
             // and replace with the condition type object we have populated with patient's current clinic, pharmacy, lab, hts, hiv etc records
@@ -228,13 +227,14 @@ public class NdrMessageHandler {
 }
 
 /*
+
 // HIV clinic encounter data
-                    if (formNdrSchema.getNdrSchema().equals("HIVEncounterType")){
-                            hivEncounterType.set(this.hivEncounterTypeMapper.map(encounter));
-                            if (hivEncounterType.get().getVisitID() != null) {
-                            EncountersType encountersType = new EncountersType();
-                            List<HIVEncounterType> hivEncounterTypeList;
-        if (conditionType.get().getEncounters() != null) {
+    if (formNdrSchema.getNdrSchema().equals("HIVEncounterType")){
+            hivEncounterType.set(this.hivEncounterTypeMapper.map(encounter));
+            if (hivEncounterType.get().getVisitID() != null) {
+            EncountersType encountersType = new EncountersType();
+            List<HIVEncounterType> hivEncounterTypeList;
+    if (conditionType.get().getEncounters() != null) {
         hivEncounterTypeList = conditionType.get().getEncounters().getHIVEncounter();
         if (hivEncounterTypeList != null){
         hivEncounterTypeList = hivEncounterTypeList.stream()
@@ -250,5 +250,6 @@ public class NdrMessageHandler {
         encountersType.getHIVEncounter().add(hivEncounterType.get());
         conditionType.get().setEncounters(encountersType);
         }
-        }
-                    */
+     }
+
+  */

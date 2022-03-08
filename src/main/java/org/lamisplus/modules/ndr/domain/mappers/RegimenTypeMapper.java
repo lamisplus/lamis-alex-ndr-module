@@ -3,6 +3,7 @@ package org.lamisplus.modules.ndr.domain.mappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.lamisplus.modules.ndr.domain.schema.CodedSimpleType;
 import org.lamisplus.modules.ndr.domain.schema.RegimenType;
 import org.lamisplus.modules.ndr.service.NdrCodesetService;
@@ -45,7 +46,7 @@ public class RegimenTypeMapper {
                 }
                 regimenType.setVisitID(String.valueOf(encounter.getId()));
 
-                String regimen = pharmacy.path("data").path("regimen").path("name").asText();
+                String regimen = StringUtils.trimToEmpty(pharmacy.path("data").path("regimen").path("name").asText());
                 Optional<RegimenLine> regimenLine = regimenLineRepository.getRegimenLineById(pharmacy.path("data").path("regimen").path("regimenLineId").asLong());
                 CodedSimpleType cst = ndrCodesetService.getCodedSimpleType("ARV_REGIMEN", regimen);
                 if (cst.getCode() != null){

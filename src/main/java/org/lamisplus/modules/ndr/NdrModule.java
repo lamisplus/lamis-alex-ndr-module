@@ -26,7 +26,7 @@ public class NdrModule extends AcrossModule {
                 getClass().getPackage().getName() +".repository",
                 getClass().getPackage().getName() +".scheduler",
                 getClass().getPackage().getName() +".service",
-                getClass().getPackage().getName() +".util",
+                getClass().getPackage().getName() +".utility",
                 getClass().getPackage().getName() +".domain.mappers"));
     }
 

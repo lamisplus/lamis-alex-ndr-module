@@ -3,6 +3,7 @@ package org.lamisplus.modules.ndr.domain.mappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.lamisplus.modules.ndr.domain.schema.AddressType;
 import org.lamisplus.modules.ndr.service.NdrCodesetService;
 import org.lamisplus.modules.base.domain.entity.OrganisationUnit;
@@ -22,14 +23,20 @@ public class AddressTypeMapper {
 
         AddressType addressType = new AddressType();
 
-        JsonNode patientDetails = objectMapper.convertValue(patient.getDetails(), JsonNode.class);
+        JsonNode details = objectMapper.convertValue(patient.getDetails(), JsonNode.class);
 
         addressType.setAddressTypeCode("Home");
-        addressType.setCountryCode(ndrCodesetService.getCode("COUNTRY", patientDetails.path("country").path("name").asText()));
-        addressType.setStateCode(ndrCodesetService.getCode("STATE", patientDetails.path("state").path("name").asText()));
-        //addressType.setLGACode(ndrCodesetService.getCode("LGA", patientDetails.path("province").path("name").asText()));
-        addressType.setOtherAddressInformation(String.valueOf(patientDetails.get("street")));
-        //addressType.setOtherAddressInformation(String.valueOf(patientDetails.get("/address/street")));
+        String ndrCode = ndrCodesetService.getCode("COUNTRY", details.path("country").path("name").asText());
+        if (!StringUtils.isEmpty(ndrCode)) addressType.setCountryCode(ndrCode);
+
+        ndrCode = ndrCodesetService.getCode("STATE", details.path("state").path("name").asText());
+        if(!StringUtils.isEmpty(ndrCode)) addressType.setStateCode(ndrCode);
+
+        ndrCode = ndrCodesetService.getCode("LGA", details.path("province").path("name").asText());
+        if(!StringUtils.isEmpty(ndrCode))  addressType.setLGACode(ndrCode);
+
+        addressType.setOtherAddressInformation(StringUtils.trimToEmpty(details.get("street").asText()));
+        //addressType.setOtherAddressInformation(String.valueOf("/details/street"));
         return addressType;
     }
 }

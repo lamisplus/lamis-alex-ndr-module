@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
-public class NdrMessagePreProcessor {
+public class EncounterAsyncProcessor {
 
     private final PatientRepository patientRepository;
     private final NdrMessageRepository ndrMessageRepository;

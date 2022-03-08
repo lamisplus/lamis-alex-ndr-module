@@ -1,6 +1,5 @@
-package org.lamisplus.modules.ndr.util;
+package org.lamisplus.modules.ndr.utility;
 
-import lombok.var;
 import org.springframework.stereotype.Component;
 
 import java.io.*;

@@ -135,6 +135,7 @@ public class HIVTestingReportTypeMapper {
             // testResultType.setTieBreakerTestResultDate(visitDate);
             hivTestResult.setTestResult(testResultType);
 
+
             //Post-test counselling type
             PostTestCounsellingType postTestCounselling = new PostTestCounsellingType();
             Boolean postTest = hts.get("post_test1").asInt() == 1 ? true : false;

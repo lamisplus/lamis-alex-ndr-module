@@ -1,7 +1,6 @@
 package org.lamisplus.modules.ndr.domain.mappers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.NullNode;
 import org.apache.commons.lang3.StringUtils;
 import org.lamisplus.modules.base.domain.entity.Patient;
 import org.lamisplus.modules.base.repository.FormDataRepository;
@@ -14,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.lamisplus.modules.ndr.domain.schema.FacilityType;
 import org.lamisplus.modules.ndr.service.EncounterService;
 import org.lamisplus.modules.ndr.service.NdrCodesetService;
-import org.lamisplus.modules.ndr.util.DateUtiil;
+import org.lamisplus.modules.ndr.utility.DateUtiil;
 import org.springframework.stereotype.Component;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -48,9 +47,9 @@ public class CommonQuestionsTypeMapper {
         // Populating patient registration data
         if (encounter.getFormCode().equals(PATIENT_REGISTRATION_FORM_CODE)){
             Optional<Patient> patient = patientRepository.findById(encounter.getPatientId());
-            JsonNode patientDetails = objectMapper.convertValue(patient.get().getDetails(), JsonNode.class);
+            JsonNode details = objectMapper.convertValue(patient.get().getDetails(), JsonNode.class);
             commonQuestionsType.setHospitalNumber(patient.get().getHospitalNumber());
-            LocalDate dob = LocalDate.parse(String.valueOf(patientDetails.get("dob")), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate dob = LocalDate.parse(String.valueOf(details.get("dob")), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             commonQuestionsType.setPatientAge(Period.between(dob, LocalDate.now()).getYears());
         }
 
@@ -62,11 +61,9 @@ public class CommonQuestionsTypeMapper {
                 FormData formData = formDataList.get(formDataList.size() - 1);
                 JsonNode hivEnrol = objectMapper.convertValue(formData, JsonNode.class);
                 try {
-                   JsonNode date = hivEnrol.path("data").path("date_hiv_enrollment");//.asText();
+                    String date = StringUtils.trimToEmpty(hivEnrol.path("data").path("date_hiv_enrollment").asText());
                     System.out.println("Date of HIV enrol " + date);
-                    if (!(date instanceof NullNode)){
-                        commonQuestionsType.setDiagnosisDate(DateUtiil.getXmlDate(String.valueOf(date)));
-                    }
+                    if (!StringUtils.isEmpty(date)) commonQuestionsType.setDiagnosisDate(DateUtiil.getXmlDate(date));
                 } catch (DatatypeConfigurationException e) {
                     e.printStackTrace();
                 }
@@ -80,35 +77,31 @@ public class CommonQuestionsTypeMapper {
             Optional<Patient> patient = patientRepository.findById(encounter.getPatientId());
             List<FormData> formDataList = this.formDataRepository.findByEncounterId(encounter.getId());
             if (!formDataList.isEmpty()){
-                FormData formData = formDataList.get(formDataList.size() - 1);
-                //JsonNode clinicVisit = objectMapper.convertValue(formData, JsonNode.class);
                 try {
                     Encounter encounter1;
                     List<Encounter> encounterList = encounterService.getFirstEncounterByFormCode(patient.get(), CLINIC_VISIT_FORM_CODE);
                     if (!encounterList.isEmpty()){
                         encounter1 = encounterList.get(encounterList.size() - 1);
                         String date = String.valueOf(encounter1.getDateEncounter());
-                        if (!StringUtils.isBlank(date)){
-                            commonQuestionsType.setDateOfFirstReport(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
-                        }
+                        if (!StringUtils.isEmpty(date)) commonQuestionsType.setDateOfFirstReport(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
                     }
 
                     encounterList = encounterService.getLastEncounterByFormCode(patient.get(), CLINIC_VISIT_FORM_CODE);
                     if (!encounterList.isEmpty()){
                         encounter1 = encounterList.get(encounterList.size() - 1);
                         String date = String.valueOf(encounter1.getDateEncounter());
-                        if (!StringUtils.isBlank(date)){
-                            commonQuestionsType.setDateOfLastReport(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
-                        }
+                        if (!StringUtils.isEmpty(date)) commonQuestionsType.setDateOfLastReport(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
+
+                        // Retrieve the pregnancy status for the last visit
                         List<FormData> formDataList1 = this.formDataRepository.findByEncounterId(encounter.getId());
                         if (!formDataList1.isEmpty()){
-                            FormData formData1 = formDataList1.get(formDataList1.size() - 1);
-                            JsonNode lastVisit = objectMapper.convertValue(formData1, JsonNode.class);
-                            commonQuestionsType.setPatientPregnancyStatusCode(ndrCodesetService.getCode("PREGNANCY_STATUS", lastVisit.path("data").path("pregnancy_status").path("display").asText()));
-                            date = String.valueOf(lastVisit.path("data").path("edd"));
-                            if (!StringUtils.isBlank(date)){
-                                commonQuestionsType.setEstimatedDeliveryDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
-                            }
+                            FormData formData = formDataList1.get(formDataList1.size() - 1);
+                            JsonNode lastVisit = objectMapper.convertValue(formData, JsonNode.class);
+                            String ndrCode = ndrCodesetService.getCode("PREGNANCY_STATUS", lastVisit.path("data").path("pregnancy_status").path("display").asText());
+                            if (!StringUtils.isEmpty(ndrCode)) commonQuestionsType.setPatientPregnancyStatusCode(ndrCode);
+
+                            date = StringUtils.trimToEmpty(lastVisit.path("data").path("edd").asText());
+                            if (!StringUtils.isEmpty(date)) commonQuestionsType.setEstimatedDeliveryDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
                         }
                     }
                 } catch (DatatypeConfigurationException e) {
@@ -123,7 +116,7 @@ public class CommonQuestionsTypeMapper {
             if (!formDataList.isEmpty()){
                 FormData formData = formDataList.get(formDataList.size() - 1);
                 JsonNode hivStatus = objectMapper.convertValue(formData, JsonNode.class);
-                if ((hivStatus.path("data").path("hiv_current_status").path("display").asText()).equals("Died (Confirmed)"))
+                if ((StringUtils.trimToEmpty(hivStatus.path("data").path("hiv_current_status").path("display").asText())).equals("Died (Confirmed)"))
                     commonQuestionsType.setPatientDieFromThisIllness(true);
             }
         }

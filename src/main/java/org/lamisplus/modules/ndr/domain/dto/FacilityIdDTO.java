@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class FacilityDTO {
-    List<Facility> facilities;
+public class FacilityIdDTO {
+    List<Long> facilityIds;
 }

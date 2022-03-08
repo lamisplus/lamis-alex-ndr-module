@@ -42,28 +42,36 @@ public class LaboratoryReportTypeMapper {
             formDataList.forEach(formData -> {
                 JsonNode laboratory = objectMapper.convertValue(formData.getData(), JsonNode.class);
                 System.out.println(".....laboratory:  " + laboratory);
-                Long labtestId = Long.parseLong(String.valueOf(laboratory.get("lab_test_id")));
-                String description = String.valueOf(laboratory.get("description"));//.asText();
-                String sampleCollectionDate = String.valueOf(laboratory.get("sample_order_date"));
+                String sampleCollectionDate = StringUtils.trimToEmpty(laboratory.path("sample_collection_date").asText());
+                String sampleOrderedDate = StringUtils.trimToEmpty(laboratory.path("sample_order_date").asText());
+                try {
+                    if (!StringUtils.isEmpty(sampleCollectionDate)) laboratoryReportType.setCollectionDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(sampleCollectionDate));
+                } catch (DatatypeConfigurationException e) {
+                    e.printStackTrace();
+                }
+
+                Long labtestId = laboratory.path("lab_test_id").asLong();
+                String description = StringUtils.trimToEmpty(laboratory.path("description").asText());
                 String dateResultReported = "";
                 String resultReported = "";
+
 
                 JsonNode reportedResults = laboratory.get("reported_result");
                 if (reportedResults != null){
                     ArrayNode arrayNode = (ArrayNode) reportedResults;
                     JsonNode lastResult = arrayNode.get(arrayNode.size() - 1); // Get last reported result
-                    resultReported = String.valueOf(lastResult.get("result_reported"));
-                    dateResultReported = String.valueOf(lastResult.get("date_result_reported"));
+                    resultReported = StringUtils.trimToEmpty(lastResult.path("result_reported").asText());
+                    dateResultReported = StringUtils.trimToEmpty(lastResult.path("date_result_reported").asText());
                 }
 
                 CodedSimpleType cst = ndrCodesetService.getCodedSimpleType("LAB_RESULTED_TEST", description);
                 if (cst != null){
-                    if (resultReported != null){
+                    if (!StringUtils.isEmpty(dateResultReported)){
                         //Set the NDR code & description for this lab test
                         LaboratoryOrderAndResult laboratoryOrderAndResult = new LaboratoryOrderAndResult();
                         laboratoryOrderAndResult.setLaboratoryResultedTest(cst);
                         try {
-                            laboratoryOrderAndResult.setOrderedTestDate((DatatypeFactory.newInstance().newXMLGregorianCalendar(sampleCollectionDate)));
+                            laboratoryOrderAndResult.setOrderedTestDate((DatatypeFactory.newInstance().newXMLGregorianCalendar(sampleOrderedDate)));
                         } catch (DatatypeConfigurationException e) {
                             e.printStackTrace();
                         }

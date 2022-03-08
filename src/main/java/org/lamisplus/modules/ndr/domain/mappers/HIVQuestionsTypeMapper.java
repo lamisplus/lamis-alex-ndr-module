@@ -3,9 +3,12 @@ package org.lamisplus.modules.ndr.domain.mappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.lamisplus.modules.base.domain.entity.Regimen;
 import org.lamisplus.modules.base.repository.PatientRepository;
 import org.lamisplus.modules.base.repository.RegimenRepository;
+import org.lamisplus.modules.ndr.domain.entity.NdrCodeset;
+import org.lamisplus.modules.ndr.domain.schema.CodedSimpleType;
 import org.lamisplus.modules.ndr.domain.schema.FacilityType;
 import org.lamisplus.modules.ndr.domain.schema.HIVQuestionsType;
 import org.lamisplus.modules.ndr.service.NdrCodesetService;
@@ -45,9 +48,11 @@ public class HIVQuestionsTypeMapper {
         ObjectMapper objectMapper = new ObjectMapper();
 
         HIVQuestionsType hivQuestionsType = new HIVQuestionsType();
-
         FormData formData;
         List<FormData> formDataList;
+        String data, date;
+        Integer numeric;
+        CodedSimpleType codedSimpleType;
 
         // Populating HIV enrollment data
         if(encounter.getFormCode().equals(HIV_ENROLMENT_FORM_CODE)) {
@@ -57,10 +62,13 @@ public class HIVQuestionsTypeMapper {
                 JsonNode hivEnrol = objectMapper.convertValue(formData, JsonNode.class);
                 System.out.println("......hiv enrol: "+hivEnrol);
 
-                hivQuestionsType.setCareEntryPoint(hivEnrol.path("data").path("care_entry_point").asText());
+                data = hivEnrol.path("data").path("care_entry_point").asText();
+                if (!StringUtils.isEmpty(data)) hivQuestionsType.setCareEntryPoint(data);
                 try {
-                    hivQuestionsType.setEnrolledInHIVCareDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(hivEnrol.path("data").path("date_hiv_enrollment").asText()));
-                    hivQuestionsType.setFirstConfirmedHIVTestDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(hivEnrol.path("data").path("date_confirmed_hiv").asText()));
+                    date = hivEnrol.path("data").path("date_hiv_enrollment").asText();
+                    if (!StringUtils.isEmpty(date)) hivQuestionsType.setEnrolledInHIVCareDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
+                    date = hivEnrol.path("data").path("date_confirmed_hiv").asText();
+                    hivQuestionsType.setFirstConfirmedHIVTestDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
                 } catch (DatatypeConfigurationException e) {
                     e.printStackTrace();
                 }
@@ -76,8 +84,8 @@ public class HIVQuestionsTypeMapper {
                 System.out.println("......art start: "+artStart);
 
                 try {
-                    String date = artStart.path("data").path("date_art_start").asText();
-                    if(date != null && !date.isEmpty()) hivQuestionsType.setARTStartDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
+                    date = artStart.path("data").path("date_art_start").asText();
+                    if (!StringUtils.isEmpty(date)) hivQuestionsType.setARTStartDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(date));
                 } catch (DatatypeConfigurationException e) {
                     e.printStackTrace();
                 }
@@ -89,18 +97,27 @@ public class HIVQuestionsTypeMapper {
                 LocalDate dateVisit = formData.getEncounterByEncounterId().getDateEncounter();
                 //LocalDate dateVisit = LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(formData.getEncounterByEncounterId().getDateEncounter()));
 
-                hivQuestionsType.setWeightAtARTStart(artStart.path("data").path("body_weight").asInt());
+                numeric = artStart.path("data").path("body_weight").asInt();
+                if (numeric != null) hivQuestionsType.setWeightAtARTStart(numeric);
                 if(Period.between(dob, dateVisit).getYears() <= PEDIATRIC_AGE) {
-                    hivQuestionsType.setChildHeightAtARTStart(artStart.path("data").path("height").asInt());
+                    numeric = artStart.path("data").path("height").asInt();
+                    if (numeric != null) hivQuestionsType.setChildHeightAtARTStart(numeric);
                 }
 
                 Optional<Regimen> regimen = regimenRepository.findById(artStart.path("data").path("regimen_id").asLong());
-                hivQuestionsType.setFirstARTRegimen(ndrCodesetService.getCodedSimpleType("ARV_REGIMEN", regimen.get().getName()));
-                hivQuestionsType.setCD4AtStartOfART(artStart.path("data").path("cd4").asText());
+                codedSimpleType = ndrCodesetService.getCodedSimpleType("ARV_REGIMEN", regimen.get().getName());
+                if (codedSimpleType != null) hivQuestionsType.setFirstARTRegimen(codedSimpleType);
 
-                hivQuestionsType.setWHOClinicalStageARTStart(ndrCodesetService.getCode("WHO_STAGE", artStart.path("data").path("clinic_stage").path("display").asText()));
-                hivQuestionsType.setFunctionalStatusStartART(ndrCodesetService.getCode("FUNCTIONAL_STATUS", artStart.path("data").path("functional_status").path("display").asText()));
-                hivQuestionsType.setInitialTBStatus(ndrCodesetService.getCode("TB_STATUS", artStart.path("data").path("tb_status").path("display").asText()));
+                data = artStart.path("data").path("cd4").asText();
+                if(!StringUtils.isEmpty(data)) hivQuestionsType.setCD4AtStartOfART(data);
+                data = ndrCodesetService.getCode("WHO_STAGE", artStart.path("data").path("clinic_stage").path("display").asText());
+                if(!StringUtils.isEmpty(data)) hivQuestionsType.setWHOClinicalStageARTStart(data);
+
+                data =ndrCodesetService.getCode("FUNCTIONAL_STATUS", artStart.path("data").path("functional_status").path("display").asText());
+                if(!StringUtils.isEmpty(data)) hivQuestionsType.setFunctionalStatusStartART(data);
+
+                data = ndrCodesetService.getCode("TB_STATUS", artStart.path("data").path("tb_status").path("display").asText());
+                if(!StringUtils.isEmpty(data)) hivQuestionsType.setInitialTBStatus(data);
             }
         }
 
@@ -118,8 +135,18 @@ public class HIVQuestionsTypeMapper {
                         hivQuestionsType.setDeathDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(hivStatus.path("data").path("date_hiv_current_status").asText()));        } catch (DatatypeConfigurationException e) {
                         e.printStackTrace();
                     }
-
                 }
+
+                if(currentStatus.equals("ART Transfer In") || currentStatus.equals("Pre-ART Transfer In")) {
+                    hivQuestionsType.setPatientTransferredIn(true);
+                    try {
+                        hivQuestionsType.setTransferredInDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(hivStatus.path("data").path("date_hiv_current_status").asText()));        } catch (DatatypeConfigurationException e) {
+                        e.printStackTrace();
+                    }
+                    //hivQuestionsType.setTransferredInFrom(facilityTypeMapper.map(encounter.getOrganisationUnitId()));
+                    //hivQuestionsType.setTransferredInFromPatId("");
+                }
+
                 if(currentStatus.equals("ART Transfer Out") || currentStatus.equals("Pre-ART Transfer Out")) {
                     hivQuestionsType.setPatientTransferredOut(true);
                     if(currentStatus.equals("ART Transfer Out"))
@@ -138,7 +165,6 @@ public class HIVQuestionsTypeMapper {
                         hivQuestionsType.setDateStoppedTreatment(DatatypeFactory.newInstance().newXMLGregorianCalendar(hivStatus.path("data").path("date_hiv_current_status").asText()));        } catch (DatatypeConfigurationException e) {
                         e.printStackTrace();
                     }
-                    /*"reasonForStoppedTreatment"*/
                 }
             }
         }
